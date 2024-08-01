@@ -41,6 +41,54 @@ class map:
         'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
     ]
 
+    def draw_chorepleth(map_file:str,
+                        df:pd.DataFrame,
+                        location:str,
+                        z:str,
+                        featureidkey:str,
+                        autocolorscale:bool = False,
+                        colorscale:str = "rainbow",
+                        colorbar_title:str = "STR Population Density",
+                        mapbox_center:dict = {"lat": 4.389059008652357, "lon": 108.65244272591418},
+                        mapbox_style:str = "basic",
+                        mapbox_zoom:int|float = 5,
+                        marker_line_width:float = 0.5,
+                        marker_opacity:float = 0.5,
+                        showlegend:bool = True,
+                        text:tuple|None = None):
+        # Import necessary packages
+        import plotly.graph_objects as go
+        import os
+
+        # use json to load the choropleth file
+        geojson_data = map.read_geojson_file(map_file)
+
+        if text!=None:
+            text=df.loc[:,text]
+
+        # Prepare to plot the choropleth
+        fig = go.Figure(go.Choroplethmapbox(geojson=geojson_data,
+                                            locations=df.loc[:,location], 
+                                            z=df.loc[:,z],
+                                            featureidkey=f"properties.{featureidkey}",
+                                            autocolorscale = autocolorscale, 
+                                            colorscale=colorscale,
+                                            colorbar_title=colorbar_title,
+                                            marker_opacity=marker_opacity, 
+                                            marker_line_width=marker_line_width,
+                                            showlegend=showlegend,
+                                            text=text,
+                                            zmin=df.loc[:,z].min(), zmax=df.loc[:,z].max(), ))
+        fig.update_layout(mapbox_style=mapbox_style, 
+                          mapbox_accesstoken=os.getenv("MAPBOX_TOKEN"),
+                          mapbox_zoom=mapbox_zoom, 
+                          mapbox_center=mapbox_center,
+                          )
+        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        
+        # Return fig
+        return fig
+
 @st.cache_data
 def read_data():
     import gspread
