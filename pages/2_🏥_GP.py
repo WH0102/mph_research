@@ -10,8 +10,8 @@ import sys
 #     sys.path.append(os.path.dirname(os.getcwd()))
 
 _mapbox_style = [
-        'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets',
-        'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 'stamen-watercolor'
+    'stamen-watercolor','carto-positron', 'open-street-map', 'white-bg', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 
+    'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets',    
     ]
 
 def read_google_sheet():
