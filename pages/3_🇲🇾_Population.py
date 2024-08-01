@@ -9,7 +9,34 @@ from dotenv import load_dotenv
 # To set the environement
 load_dotenv()
 px.set_mapbox_access_token(os.getenv("MAPBOX_TOKEN"))
-_dict_district = {"Cameron Highland":"Cameron Highlands",
+
+class map:
+    # Options
+    # Allowed values which do not require a Mapbox API token are 
+        # 'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen- terrain', 'stamen-toner', 'stamen-watercolor'. 
+        # Allowed values which do require a Mapbox API token are 
+        # 'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets'.
+    _mapbox_style = [
+        'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets',
+        'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 'stamen-watercolor'
+    ]
+    _color_scheme = [
+        'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance',
+        'blackbody', 'bluered', 'blues', 'blugrn', 'bluyl', 'brbg',
+        'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl',
+        'darkmint', 'deep', 'delta', 'dense', 'earth', 'edge', 'electric',
+        'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 'greys',
+        'haline', 'hot', 'hsv', 'ice', 'icefire', 'inferno', 'jet',
+        'magenta', 'magma', 'matter', 'mint', 'mrybm', 'mygbm', 'oranges',
+        'orrd', 'oryel', 'oxy', 'peach', 'phase', 'picnic', 'pinkyl',
+        'piyg', 'plasma', 'plotly3', 'portland', 'prgn', 'pubu', 'pubugn',
+        'puor', 'purd', 'purp', 'purples', 'purpor', 'rainbow', 'rdbu',
+        'rdgy', 'rdpu', 'rdylbu', 'rdylgn', 'redor', 'reds', 'solar',
+        'spectral', 'speed', 'sunset', 'sunsetdark', 'teal', 'tealgrn',
+        'tealrose', 'tempo', 'temps', 'thermal', 'tropic', 'turbid',
+        'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
+    ]
+    _dict_district = {"Cameron Highland":"Cameron Highlands",
                       "Sp Selatan":"Seberang Perai Selatan",
                       "Sp Tengah":"Seberang Perai Tengah",
                       "Sp Utara":"Seberang Perai Utara"}
@@ -54,7 +81,7 @@ def population_analysis() -> None:
     district_geojson = read_geojson_file("./data/map/administrative_2_district.geojson")
     district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
                             .with_columns(pl.col("age").str.replace("5-9", "05-09"))
-    for key, value in _dict_district.items():
+    for key, value in map._dict_district.items():
         district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
     
     # Prepare some filteration method
