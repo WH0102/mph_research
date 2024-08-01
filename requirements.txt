@@ -1,0 +1,8 @@
+gspread
+pygsheets
+numpy
+openpyxl
+pandas
+polars
+plotly_express
+tables
