@@ -41,6 +41,17 @@ class map:
         'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
     ]
 
+    def read_geojson_file(file:str):
+        # Import packages
+        import json
+
+        # Open the file and then load with json
+        with open(file=file) as file:
+            geojson_data = json.load(file)
+
+        # Return the geojson_data
+        return geojson_data
+
     def draw_chorepleth(map_file:str,
                         df:pd.DataFrame,
                         location:str,
