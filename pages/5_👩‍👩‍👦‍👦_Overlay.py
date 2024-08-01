@@ -14,17 +14,58 @@ import os
 load_dotenv()
 px.set_mapbox_access_token(os.getenv("MAPBOX_TOKEN"))
 
-# To ensure the function can be import
-if os.path.dirname(os.getcwd()) not in sys.path:
-    sys.path.append(os.path.dirname(os.getcwd()))
-
-from mph.geo_project.streamlit.function.file import file
-from mph.geo_project.streamlit.function.map import map
+class map:
+    # Options
+    # Allowed values which do not require a Mapbox API token are 
+        # 'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen- terrain', 'stamen-toner', 'stamen-watercolor'. 
+        # Allowed values which do require a Mapbox API token are 
+        # 'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets'.
+    _mapbox_style = [
+        'basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite- streets',
+        'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 'stamen-watercolor'
+    ]
+    _color_scheme = [
+        'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance',
+        'blackbody', 'bluered', 'blues', 'blugrn', 'bluyl', 'brbg',
+        'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl',
+        'darkmint', 'deep', 'delta', 'dense', 'earth', 'edge', 'electric',
+        'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 'greys',
+        'haline', 'hot', 'hsv', 'ice', 'icefire', 'inferno', 'jet',
+        'magenta', 'magma', 'matter', 'mint', 'mrybm', 'mygbm', 'oranges',
+        'orrd', 'oryel', 'oxy', 'peach', 'phase', 'picnic', 'pinkyl',
+        'piyg', 'plasma', 'plotly3', 'portland', 'prgn', 'pubu', 'pubugn',
+        'puor', 'purd', 'purp', 'purples', 'purpor', 'rainbow', 'rdbu',
+        'rdgy', 'rdpu', 'rdylbu', 'rdylgn', 'redor', 'reds', 'solar',
+        'spectral', 'speed', 'sunset', 'sunsetdark', 'teal', 'tealgrn',
+        'tealrose', 'tempo', 'temps', 'thermal', 'tropic', 'turbid',
+        'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
+    ]
 
 @st.cache_data
 def read_data():
-    gp = pd.read_hdf(os.path.join(os.path.dirname(os.getcwd()), "data/gp/gp.h5"))
-    population = pl.read_parquet(os.path.join(os.path.dirname(os.getcwd()), file._population_str_ascii_households))
+    import gspread
+    import ast
+    from google.oauth2.service_account import Credentials
+    scopes = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+
+    credentials = Credentials.from_service_account_info(
+        ast.literal_eval(os.getenv("GSPREAD")),
+        scopes=scopes
+    )
+
+    gc = gspread.authorize(credentials)
+
+    sh = gc.open_by_url("https://docs.google.com/spreadsheets/d/1qFEXMLsWHXQIvv3gUflwObSOZPqklw8TD_VXilI2ojo/edit")
+
+    worksheet = sh.get_worksheet(0)
+
+    gp = pd.DataFrame(worksheet.get_all_records())
+
+    population = pl.read_parquet("./data/population/str_ascii_household.parquet")
+
     return gp, population
 
 def overlay_analysis() -> None:
@@ -104,7 +145,7 @@ def overlay_analysis() -> None:
     elif map_selection == "District Chorepleth":
         temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())
         # DDisplay the chorepleth map
-        st.plotly_chart(map.draw_chorepleth(map_file = os.path.join(os.path.dirname(os.getcwd()),file._map_district),
+        st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
                                             df = temp_pt.to_pandas(),
                                             location="district",
                                             z="estimated_str",
@@ -122,7 +163,7 @@ def overlay_analysis() -> None:
     elif map_selection == "Parlimen Chorepleth":
         temp_pt = population.group_by("parlimen").agg(pl.col("estimated_str").sum())
         # Show the chorepleth first
-        st.plotly_chart(map.draw_chorepleth(map_file = os.path.join(os.path.dirname(os.getcwd()),file._map_parlimen),
+        st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/electoral_0_parlimen.geojson",
                                             df = temp_pt.to_pandas(),
                                             location="parlimen",
                                             z="estimated_str",
