@@ -5,4 +5,5 @@ openpyxl
 pandas
 polars
 plotly_express
+python-dotenv
 tables
