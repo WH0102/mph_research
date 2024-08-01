@@ -128,7 +128,7 @@ def population_analysis() -> None:
                                          zoom=5))
 
     # Restructure the DF
-    district_population = pl.read_parquet(os.path.join(os.path.dirname(os.getcwd()),file._population_district))\
+    district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
                             .with_columns(pl.col("age").str.replace("5-9", "05-09"))
     for key, value in map._dict_district.items():
         district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
