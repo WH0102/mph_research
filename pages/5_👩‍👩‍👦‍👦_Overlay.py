@@ -172,20 +172,20 @@ def overlay_analysis() -> None:
 
     # To allow user to select which type of map to present
     map_selection = st.radio("Select Type of Map to display", 
-                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "GP Only", "Overlay Map"],
+                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Overlay Map"],
                              horizontal=True)
     
-    gp_fig = px.scatter_mapbox(gp, lat="Latitude", lon="Longitude", 
-                               color="district", 
-                               text="clinic_name",
-                               center={"lat": 4.389059008652357, "lon": 108.65244272591418},
-                               mapbox_style=mapbox_style)
+    
+    # To display the GP 
+    # if map_selection == "GP Only":
+    #     gp_fig = px.scatter_mapbox(gp, lat="Latitude", lon="Longitude", 
+    #                            color="district", 
+    #                            text="clinic_name",
+    #                            center={"lat": 4.389059008652357, "lon": 108.65244272591418},
+    #                            mapbox_style=mapbox_style)
+    #     st.plotly_chart(gp_fig, use_container_width=True)
 
-    if map_selection == "GP Only":
-        
-        st.plotly_chart(gp_fig, use_container_width=True)
-
-    elif map_selection == "Density Map" or map_selection == "Overlay Map":
+    if map_selection == "Density Map":
         # Prepare the dataset
         temp_pt = population.select("X","Y", "estimated_str").to_pandas()
         fig = go.Figure(go.Densitymapbox(lat=temp_pt["Y"], lon=temp_pt["X"], z=temp_pt.loc[:,"estimated_str"],
@@ -201,16 +201,19 @@ def overlay_analysis() -> None:
                           mapbox_accesstoken=os.getenv("MAPBOX_TOKEN"),
                           mapbox_zoom=5, 
                           mapbox_center={"lat": 4.389059008652357, "lon": 108.65244272591418})
-        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        # Display the figure    
+        st.plotly_chart(fig, use_container_width=True)
 
-        # Trial to present the map based on selection
-        if map_selection == "Density Map":
-            st.plotly_chart(fig, use_container_width=True)
+    elif map_selection == "Overlay Map":
+        # st.write("Under Construction")
+        fig = px.scatter_mapbox(temp_pt, lat="Y", lon="X",
+                                size="estimated_str", color="state",
+                                color_continuous_scale=color_continuous_scale,
+                                mapbox_style=mapbox_style,
+                                opacity=opacity)
 
-        elif map_selection == "Overlay Map":
-            fig.add_trace(gp_fig.data[0])
-
-            st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
     elif map_selection == "District Chorepleth":
         temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())
         # DDisplay the chorepleth map

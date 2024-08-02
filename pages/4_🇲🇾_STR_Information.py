@@ -17,9 +17,9 @@ px.set_mapbox_access_token(os.getenv("MAPBOX_TOKEN"))
 if os.path.dirname(os.getcwd()) not in sys.path:
     sys.path.append(os.path.dirname(os.getcwd()))
 
-from mph.geo_project.streamlit.function.file import file
-from mph.geo_project.streamlit.function.map import map
-from mph.geo_project.streamlit.function.descriptive import descriptive
+from .function.file import file
+from .function.map import map
+from .function.descriptive import descriptive
 
 @st.cache_data
 def read_data():
@@ -111,18 +111,18 @@ def str_analysis() -> None:
                      .merge(parlimen_info.loc[:,("code_parlimen", "parlimen", "district")], on="code_parlimen", how="left"), 
                      use_container_width=True)
 
-    # Display the chorepleth
-    st.plotly_chart(map.draw_chorepleth(map_file = os.path.join(os.path.dirname(os.getcwd()),file._map_parlimen),
-                                        df = population_pt,
-                                        location="parlimen",
-                                        z="STR Count",
-                                        featureidkey="parlimen",
-                                        text="STR Count",
-                                        colorscale=color_continuous_scale,
-                                        mapbox_style=mapbox_style,
-                                        marker_line_width = 0.5,
-                                        marker_opacity = 0.5,),
-                    use_container_width=True)
+    # # Display the chorepleth
+    # st.plotly_chart(map.draw_chorepleth(map_file = os.path.join(os.path.dirname(os.getcwd()),file._map_parlimen),
+    #                                     df = population_pt,
+    #                                     location="parlimen",
+    #                                     z="STR Count",
+    #                                     featureidkey="parlimen",
+    #                                     text="STR Count",
+    #                                     colorscale=color_continuous_scale,
+    #                                     mapbox_style=mapbox_style,
+    #                                     marker_line_width = 0.5,
+    #                                     marker_opacity = 0.5,),
+    #                 use_container_width=True)
 
 if __name__ == "__main__":
     str_analysis()

@@ -1,24 +1,24 @@
 class file:
     # GP File
-    _gp_file = "data/gp/gp_list.xlsx"
-    _gp_file_h5= "data/gp/gp.h5"
+    _gp_file = "data/information/gp_list.xlsx"
+    # _gp_file_h5= "data/gp/gp.h5"
 
     # Map File
-    _map_malaysia = "data/map_file/administrative_0_malaysia.geojson"
-    _map_state = "data/map_file/administrative_1_state.geojson"
-    _map_district = "data/map_file/administrative_2_district.geojson"
-    _map_parlimen = "data/map_file/electoral_0_parlimen.geojson"
-    _map_dun = "data/map_file/electoral_1_dun.geojson"
+    _map_malaysia = "data/map/administrative_0_malaysia.geojson"
+    _map_state = "data/map/administrative_1_state.geojson"
+    _map_district = "data/map/administrative_2_district.geojson"
+    _map_parlimen = "data/map/electoral_0_parlimen.geojson"
+    _map_dun = "data/map/electoral_1_dun.geojson"
 
     # Population
-    _population_ascii = "data/population/mys_pd_2020_1km_ASCII_XYZ.csv"
-    _population_dun = "data/population/Population DUN.parquet"
-    _population_parlimen = "data/population/Population Parlimen.parquet"
-    _population_district = "data/population/Population District.parquet"
-    _population_malaysia = "data/population/Malaysia Population Table.parquet"
+    _population_ascii = "data/information/mys_pd_2020_1km_ASCII_XYZ.csv"
+    _population_dun = "data/information/Population DUN.parquet"
+    _population_parlimen = "data/information/Population Parlimen.parquet"
+    _population_district = "data/information/Population District.parquet"
+    _population_malaysia = "data/information/Malaysia Population Table.parquet"
     # _population_str_parlimen_district = "data/population/parlimen_district_str.parquet"
-    _population_str_ascii_parlimen = "data/population/str_ascii_parlimen.parquet"
-    _population_str_ascii_households = "data/population/str_ascii_household.parquet"
+    _population_str_ascii_parlimen = "data/information/str_ascii_parlimen.parquet"
+    _population_str_ascii_households = "data/information/str_ascii_household.parquet"
 
     # Census
     _census_dun = "data/population/Census Dun.csv"
