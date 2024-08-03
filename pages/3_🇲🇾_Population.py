@@ -40,23 +40,29 @@ class map:
                       "Sp Selatan":"Seberang Perai Selatan",
                       "Sp Tengah":"Seberang Perai Tengah",
                       "Sp Utara":"Seberang Perai Utara"}
+    
+    # Prepare some filteration method
+    _filter_value = {"sex":"both", "age":"overall", "ethnicity":"overall"}
+    _filter_list = list(zip(combinations(_filter_value.keys(), 2), combinations(_filter_value.values(), 2)))
+    _reversed_key = list(_filter_value.keys())[::-1]
 
-def read_geojson_file(file:str):
-    # Import packages
-    import json
+    def read_population_data():
+        district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
+                            .with_columns(pl.col("age").str.replace("5-9", "05-09"))
+        for key, value in map._dict_district.items():
+            district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
+        return district_population
 
-    # Open the file and then load with json
-    with open(file=file) as file:
-        geojson_data = json.load(file)
+    def read_geojson_file(file:str):
+        # Import packages
+        import json
 
-    # Return the geojson_data
-    return geojson_data
-# To ensure the function can be import
-# if os.path.dirname(os.getcwd()) not in sys.path:
-#     sys.path.append(os.path.dirname(os.getcwd()))
+        # Open the file and then load with json
+        with open(file=file) as file:
+            geojson_data = json.load(file)
 
-# from mph.geo_project.streamlit.function.file import file
-# from mph.geo_project.streamlit.function.map import map
+        # Return the geojson_data
+        return geojson_data
 
 def population_analysis() -> None:
     # Header of the page
@@ -78,24 +84,14 @@ def population_analysis() -> None:
     st.markdown("""<p class="subheader">General Malaysian Population Information</p>""", unsafe_allow_html=True)
     
     # Prepare the dataset
-    district_geojson = read_geojson_file("./data/map/administrative_2_district.geojson")
-    district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
-                            .with_columns(pl.col("age").str.replace("5-9", "05-09"))
-    for key, value in map._dict_district.items():
-        district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
+    district_geojson = map.read_geojson_file("./data/map/administrative_2_district.geojson")
+    district_population = map.read_population_data()
     
-    # Prepare some filteration method
-    filter_value = {"sex":"both", "age":"overall", "ethnicity":"overall"}
-    filter_list = list(zip(combinations(filter_value.keys(), 2), combinations(filter_value.values(), 2)))
-    reversed_key = list(filter_value.keys())[::-1]
-
     # To put option for choropleth plot
     col1, col2 = st.columns(2)
     with col1:
+        # To allow user to choose color scheme for the map
         color_continuous_scale = st.selectbox("color_continuous_scale", options=map._color_scheme)
-        # # To select Year
-        # year_selection = st.selectbox("Year for Population", options=district_population.select(pl.col("date").cast(pl.String),"district").to_pandas().sort_values("date", ascending=False)["date"].unique())
-        # district_population = district_population.filter(pl.col("date").cast(pl.String)==year_selection)
         
         # To select Sex
         sex = st.selectbox("Sex", options=district_population.select("district","sex").to_pandas().sort_values("sex")["sex"].unique())
@@ -107,6 +103,7 @@ def population_analysis() -> None:
             district_population = district_population.filter(pl.col("district").is_in(district_selection))
 
     with col2:
+        # To allow user to choose mapbox style
         mapbox_style = st.selectbox("Mapbox Style", options=map._mapbox_style)
         
         # To select Ethinicity
@@ -130,16 +127,14 @@ def population_analysis() -> None:
                                          zoom=5))
 
     # Restructure the DF
-    district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
-                            .with_columns(pl.col("age").str.replace("5-9", "05-09"))
-    for key, value in map._dict_district.items():
-        district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
+    district_population = map.read_population_data()
+
     # To allow change in value for all tabs below
     if district_selection != []:
         district_population = district_population.filter(pl.col("district").is_in(district_selection))
 
     # Create tabs with name
-    tabs = st.tabs(["District", ] + reversed_key)
+    tabs = st.tabs(["District", ] + map._reversed_key)
 
     # For Overall
     with tabs[0]:
@@ -163,23 +158,17 @@ def population_analysis() -> None:
          # Loop through tabs
          with tabs[num+1]:
             # Pivot based on a single column but ensure other columns use overall or both
-            temp_df = district_population.filter(pl.col(filter_list[num][0][0])==filter_list[num][1][0],
-                                                pl.col(filter_list[num][0][1])==filter_list[num][1][1])\
-                        .select(pl.col("date").cast(pl.String), "population", reversed_key[num]).to_pandas()\
-                        .pivot_table(index=reversed_key[num], columns="date", values="population", aggfunc=sum)
+            temp_df = district_population.filter(pl.col(map._filter_list[num][0][0])==map._filter_list[num][1][0],
+                                                pl.col(map._filter_list[num][0][1])==map._filter_list[num][1][1])\
+                        .select(pl.col("date").cast(pl.String), "population", map._reversed_key[num]).to_pandas()\
+                        .pivot_table(index=map._reversed_key[num], columns="date", values="population", aggfunc=sum)
             
             # Calculate percentage
-            for column in [column for column in temp_df.columns if column != reversed_key[num]]:
+            for column in [column for column in temp_df.columns if column != map._reversed_key[num]]:
                 temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].max() * 100, 2)
             
             # Show the dataframe
             st.dataframe(temp_df, use_container_width=True)
-
-    # No need to write for all?
-    # Concentrate on the population first, for 10 districts,
-    # Merge with parliment to get the parliment involved
-    # Divide the parliment str number by total population to get a percentage
-    # Use the percentage to times with the z value from ASCII for density
     
 if __name__ == "__main__":
     population_analysis()
