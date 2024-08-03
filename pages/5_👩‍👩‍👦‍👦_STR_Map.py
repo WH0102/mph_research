@@ -206,20 +206,20 @@ def overlay_analysis() -> None:
         #                     .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
         
         temp_pt = population.to_pandas()\
-                            .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=True).reset_index()
-        temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc[:, "estimated_str"].max() * 100, 2)
+                            .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=False).reset_index()
+        temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc[:, "estimated_str"].sum() * 100, 2)
 
         # For district population
         temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
-                         .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=True)
+                         .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=False)
         
-        # Merge the dataframe
-        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district").drop(columns="All")
+        # Merge the dataframe .drop(columns="All") if use margins --True
+        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
         
         # for column in [column for column in temp_df.columns if column != "population"]:
         for column in ["2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01"]:
             # Calculate percentage for population
-            merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / merge_pt.loc[:,column].max() * 100, 2)
+            merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / merge_pt.loc[:,column].sum() * 100, 2)
             # Calculate the str percentage
             merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / (merge_pt.loc[:,column] * 1000) * 100, 2)            
 
@@ -238,6 +238,7 @@ def overlay_analysis() -> None:
         
         # Show the pivoted table 
         st.dataframe(merge_pt, use_container_width=True, hide_index=True)
+        st.dataframe(merge_pt.describe(), use_container_width=True)
         
     elif map_selection == "Parlimen Chorepleth":
         # TO pivot with percentage
