@@ -8,4 +8,7 @@ pandas
 polars
 plotly_express
 python-dotenv
+scipy
+seaborn
+statsmodels
 tables
