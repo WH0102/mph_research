@@ -189,7 +189,8 @@ def overlay_analysis() -> None:
 
     elif map_selection == "Scatter Buble Map":
         # Prepare the dataset
-        temp_pt = population.select("X","Y", "estimated_str").to_pandas()
+        temp_pt = population.select("X","Y", "estimated_str", "state").to_pandas()
+        
         # Plot the scatter bubbule map
         fig = px.scatter_mapbox(temp_pt, lat="Y", lon="X",
                                 size="estimated_str", color="state",
