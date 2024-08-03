@@ -214,7 +214,7 @@ def overlay_analysis() -> None:
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=True)
         
         # Merge the dataframe
-        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
+        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district").drop(columns="All")
         
         # for column in [column for column in temp_df.columns if column != "population"]:
         for column in ["2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01"]:
