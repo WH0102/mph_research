@@ -101,12 +101,14 @@ class map:
         return fig
 
     def read_data():
-        population = pl.read_parquet("./data/population/str_ascii_household.parquet")
+        
 
         district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
                             .with_columns(pl.col("age").str.replace("5-9", "05-09"))
         for key, value in map._dict_district.items():
             district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
+
+        population = pl.read_parquet("./data/population/str_ascii_household.parquet")
 
         return population, district_population
 
