@@ -58,8 +58,8 @@ class map:
         "Sp Utara":"Seberang Perai Utara" 
     }
 
-    _summary_column_name = ["District Name", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis", "shapiro"]
-    _summary_function_list = [np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
+    _summary_column_name = ["District Name", "Count of Points", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis", "shapiro"]
+    _summary_function_list = [len, np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
 
     def read_data():
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
@@ -112,6 +112,12 @@ def overlay_analysis():
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.drop(columns="shapiro").round(2), 
                      hide_index=True, use_container_width=True)
+        
+        # To display the histogram?
+        st.plotly_chart(px.histogram(population.query(f"code_state_district.isin({gp._district_code_list})"),
+                                     x="distance",
+                                     nbins=len(population.query(f"code_state_district.isin({gp._district_code_list})"))),
+                        use_container_width=True)
 
 if __name__ == "__main__":
     overlay_analysis()
