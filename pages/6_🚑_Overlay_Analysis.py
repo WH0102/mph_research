@@ -91,7 +91,9 @@ def overlay_analysis():
     with tabs[0]:
         st.dataframe(population.query(f"code_state_district.isin({gp._district_code_list})")\
                      .pivot_table(index="district", values="distance", 
-                                  aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]))
+                                  aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro])\
+                     .round(2),
+                    use_container_width=True)
 
 if __name__ == "__main__":
     overlay_analysis()
