@@ -278,7 +278,10 @@ def str_map_analysis() -> None:
         temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc[:, "estimated_str"].sum() * 100, 2)
 
         # For district population
-        temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
+        temp_df = district_population.filter(pl.col("sex")=="both",
+                                            pl.col("age")=="overall",
+                                            pl.col("ethnicity")=="overall")\
+                                     .select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=False)
         
         # Merge the dataframe .drop(columns="All") if use margins --True
