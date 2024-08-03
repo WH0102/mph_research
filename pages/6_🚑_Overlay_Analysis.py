@@ -89,11 +89,24 @@ def overlay_analysis():
     tabs = st.tabs(["Overview", ] + gp._district_name_list)
 
     with tabs[0]:
-        st.dataframe(population.query(f"code_state_district.isin({gp._district_code_list})")\
-                     .pivot_table(index="district", values="distance", 
-                                  aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro])\
-                     .rename_axis(None, axis=1).reset_index().round(2),
-                    use_container_width=True)
+        # Perform pivot table operation
+        pivot_table = population.query(f"code_state_district.isin({gp._district_code_list})")\
+            .pivot_table(
+                index="district", 
+                values="distance", 
+                aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
+            ).reset_index()
+
+        # Flatten the MultiIndex columns
+        # pivot_table.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in pivot_table.columns]
+        pivot_table.columns = ["district", "mean", "standard deviation", "min", "max", "median", "iqr", "skew", "kurtosis", "shapiro"]
+
+        # Separate the Shapiro-Wilk test results into two columns
+        for index, row in pivot_table.iterrows():
+            pivot_table.loc[index, "Shapiro_stats"] = float(row["shapiro"][0])
+            pivot_table.loc[index, "Shapiro_p_value"] = float(row["shapiro"][1])
+        # # Drop the original shapiro_test column then show it
+        st.dataframe(pivot_table.drop(columns="shapiro"), use_container_width=True)
 
 if __name__ == "__main__":
     overlay_analysis()
