@@ -223,7 +223,7 @@ def overlay_analysis() -> None:
                         use_container_width=True)
         
         # Show the pivoted table 
-        st.dataframe(temp_pt.merge(temp_district.reset_index(), how="outer", on="district"), 
+        st.dataframe(temp_pt.merge(temp_df.reset_index(), how="outer", on="district"), 
                      use_container_width=True, hide_index=True)
         
     elif map_selection == "Parlimen Chorepleth":
