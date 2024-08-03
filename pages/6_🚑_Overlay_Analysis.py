@@ -2,6 +2,8 @@ import streamlit as st
 from datetime import date
 import polars as pl
 import pandas as pd
+import numpy as np
+from scipy.stats import skew, kurtosis, shapiro, norm, spearmanr, iqr
 import plotly.express as px
 import plotly.graph_objects as go
 from itertools import combinations
@@ -13,6 +15,14 @@ import os
 # To set the environement
 load_dotenv()
 px.set_mapbox_access_token(os.getenv("MAPBOX_TOKEN"))
+
+class gp:
+    _district_code_list = ['14_1', '13_1', '12_7', '10_8', '10_1', '10_5', '10_2', '8_3', '7_4', '1_2']
+    _state_code_list = [14, 13, 12, 10, 8, 7, 1]
+    _district_name_list = [
+        'Gombak', 'Johor Bahru', 'Kinta', 'Klang', 'Kota Kinabalu',
+        'Kuching', 'Petaling', 'Timur Laut', 'Ulu Langat', 'W.P. Kuala Lumpur'
+    ]
 
 class map:
     # Options
@@ -72,8 +82,16 @@ def overlay_analysis():
     # Prepare the data and return error if something goes wrong
     gp, population = map.read_data()
 
-    # For monitoring
-    st.data_editor(population, use_container_width=True)
+    # To divide intor 2 different section
+    # 1. General
+    # 2. Per District
+
+    tabs = st.tabs(["Overview", ] + gp._district_name_list)
+
+    with tabs[0]:
+        st.dataframe(population.query(f"code_state_district.isin({gp._district_code_list})")\
+                     .pivot_table(index="district", values="distance", 
+                                  aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]))
 
 if __name__ == "__main__":
     overlay_analysis()

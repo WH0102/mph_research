@@ -3,9 +3,13 @@ import pandas as pd
 import geopandas as gpd
 
 class gp:
-    _district_list = ['14_1', '10_8', '10_1', '10_5', '10_2', '8_3', '7_4', '1_2']
-    _state_list = [14, 10, 8, 7, 1]
-    _parlimen_list = ['P.048', 'P.049', 'P.050', 'P.051', 'P.052', 'P.053', 'P.062',
+    _district_code_list = ['14_1', '13_1', '12_7', '10_8', '10_1', '10_5', '10_2', '8_3', '7_4', '1_2']
+    _state_code_list = [14, 13, 12, 10, 8, 7, 1]
+    _district_name_list = [
+        'Gombak', 'Johor Bahru', 'Kinta', 'Klang', 'Kota Kinabalu',
+        'Kuching', 'Petaling', 'Timur Laut', 'Ulu Langat', 'W.P. Kuala Lumpur'
+    ]
+    _parlimen_code_list = ['P.048', 'P.049', 'P.050', 'P.051', 'P.052', 'P.053', 'P.062',
        'P.063', 'P.064', 'P.065', 'P.066', 'P.067', 'P.069', 'P.070',
        'P.071', 'P.072', 'P.073', 'P.094', 'P.095', 'P.096', 'P.097',
        'P.098', 'P.099', 'P.100', 'P.101', 'P.102', 'P.103', 'P.104',

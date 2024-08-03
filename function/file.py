@@ -19,6 +19,7 @@ class file:
     # _population_str_parlimen_district = "data/population/parlimen_district_str.parquet"
     _population_str_ascii_parlimen = "data/information/str_ascii_parlimen.parquet"
     _population_str_ascii_households = "data/information/str_ascii_household.parquet"
+    _population_str_ascii_gp_households = "data/information/ascii_household_and_gp.parquet"
 
     # Census
     _census_dun = "data/population/Census Dun.csv"
