@@ -106,7 +106,7 @@ def overlay_analysis():
             pivot_table.loc[index, "Shapiro_stats"] = float(row["shapiro"][0])
             pivot_table.loc[index, "Shapiro_p_value"] = float(row["shapiro"][1])
         # # Drop the original shapiro_test column then show it
-        st.dataframe(pivot_table.drop(columns="shapiro"), use_container_width=True)
+        st.dataframe(pivot_table.drop(columns="shapiro").round(2), use_container_width=True)
 
 if __name__ == "__main__":
     overlay_analysis()
