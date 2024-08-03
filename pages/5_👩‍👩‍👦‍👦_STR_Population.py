@@ -204,10 +204,17 @@ def overlay_analysis() -> None:
         # For district population
         temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
+        
+        # Merge the dataframe
+        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
 
         # Calculate percentage
         for column in [column for column in temp_df.columns if column != "population"]:
             temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
+            merge_pt.loc[:,f"{column}_str_%"] = round(temp_df.loc[:,"estimated_str"] / temp_df.loc[:,column].sum() * 100, 2)
+
+        # Calculate the str percentage
+
         
         # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
@@ -223,8 +230,7 @@ def overlay_analysis() -> None:
                         use_container_width=True)
         
         # Show the pivoted table 
-        st.dataframe(temp_pt.merge(temp_df.reset_index(), how="outer", on="district"), 
-                     use_container_width=True, hide_index=True)
+        st.dataframe(merge_pt, use_container_width=True, hide_index=True)
         
     elif map_selection == "Parlimen Chorepleth":
         # TO pivot with percentage
