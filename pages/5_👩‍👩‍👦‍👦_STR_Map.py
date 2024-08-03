@@ -275,7 +275,7 @@ def str_map_analysis() -> None:
         
         temp_pt = population.to_pandas()\
                             .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=False).reset_index()
-        temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc[:, "estimated_str"].sum() * 100, 2)
+        temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / 8391149 * 100, 2)
 
         # For district population
         temp_df = district_population.filter(pl.col("sex")=="both",
@@ -287,10 +287,15 @@ def str_map_analysis() -> None:
         # Merge the dataframe .drop(columns="All") if use margins --True
         merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
         
-        # for column in [column for column in temp_df.columns if column != "population"]:
-        for column in ["2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01"]:
+        # To prevent error of percentage upon selection of district:
+        temp_dict = {"2020-01-01":32447.1, 
+                     "2021-01-01":32576.0, 
+                     "2022-01-01":32698.4, 
+                     "2023-01-01":33379.8}
+
+        for column in temp_dict.keys():
             # Calculate percentage for population
-            merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / merge_pt.loc[:,column].sum() * 100, 2)
+            merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / temp_dict[column] * 100, 2)
             # Calculate the str percentage
             merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / (merge_pt.loc[:,column] * 1000) * 100, 2)            
 
