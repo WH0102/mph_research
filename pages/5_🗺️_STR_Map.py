@@ -269,10 +269,7 @@ def str_map_analysis() -> None:
         st.plotly_chart(fig, use_container_width=True)
 
     elif map_selection == "District Chorepleth":
-        # To pivot with percentage for STR population
-        # temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())\
-        #                     .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
-        
+        # To pivot with percentage for STR population, using total number to prevent error of margin after filter
         temp_pt = population.to_pandas()\
                             .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=False).reset_index()
         temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / 8391149 * 100, 2)
