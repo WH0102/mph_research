@@ -105,7 +105,8 @@ class map:
             try:
                 # QQ plot
                 st.write(f"QQ Plot for {column_name}:")
-                st.pyplot(sm.qqplot(df.loc[:,column_name], line='45', fit = True), use_container_width=True)
+                fig, (ax1,) = plt.subplots(nrows=1, ncols=1)
+                st.pyplot(sm.qqplot(df.loc[:,column_name], line='45', ax=ax1, fit = True), use_container_width=True)
                 st.divider()
 
             except:
