@@ -100,7 +100,6 @@ class map:
         # Return fig
         return fig
 
-    @st.cache_data
     def read_data():
         population = pl.read_parquet("./data/population/str_ascii_household.parquet")
 
