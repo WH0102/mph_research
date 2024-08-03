@@ -1,6 +1,7 @@
 gspread
 geopandas
 pygsheets
+matplotlib
 numpy
 openpyxl
 pandas
