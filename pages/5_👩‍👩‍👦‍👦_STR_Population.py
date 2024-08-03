@@ -217,7 +217,7 @@ def overlay_analysis() -> None:
             # Calculate percentage for population
             merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / merge_pt.loc[:,column].sum() * 100, 2)
             # Calculate the str percentage
-            merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / (merge_pt.loc[:,column].sum() * 1000) * 100, 2)            
+            merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / (merge_pt.loc[:,column] * 1000) * 100, 2)            
 
         # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
