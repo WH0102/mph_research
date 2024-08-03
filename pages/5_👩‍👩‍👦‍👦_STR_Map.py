@@ -169,6 +169,7 @@ def overlay_analysis() -> None:
     if map_selection == "Density Map":
         # Prepare the dataset
         temp_pt = population.select("X","Y", "estimated_str").to_pandas()
+
         # Plot the density map
         fig = go.Figure(go.Densitymapbox(lat=temp_pt["Y"], lon=temp_pt["X"], z=temp_pt.loc[:,"estimated_str"],
                                  radius=radius,
@@ -237,8 +238,15 @@ def overlay_analysis() -> None:
                         use_container_width=True)
         
         # Show the pivoted table 
-        st.dataframe(merge_pt, use_container_width=True, hide_index=True)
-        st.dataframe(merge_pt.describe(), use_container_width=True)
+        with st.expander("District Pivot Table"):
+           st.dataframe(merge_pt, use_container_width=True, hide_index=True)
+        
+        # To put a divider
+        st.divider()
+        
+        # Summary of the pivoted table
+        with st.expander("Summary of District Pivot Table"):
+            st.dataframe(merge_pt.describe(), use_container_width=True)
         
     elif map_selection == "Parlimen Chorepleth":
         # TO pivot with percentage
@@ -257,6 +265,7 @@ def overlay_analysis() -> None:
                                             marker_line_width = 0.5,
                                             marker_opacity = 0.5,),
                         use_container_width=True)
+        
         #Show the pivoted table
         st.dataframe(temp_pt, use_container_width=True)
 
