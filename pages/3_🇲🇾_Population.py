@@ -199,11 +199,11 @@ def population_analysis() -> None:
                                             pl.col("ethnicity")=="overall")
     
     temp_pt = temp_df.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
-                        .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
+                        .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=True)
 
     # Calculate percentage
     for column in [column for column in temp_pt.columns if column != "population"]:
-        temp_pt.loc[:,f"{column}_%"] = round(temp_pt.loc[:,column] / temp_pt.loc[:,column].sum() * 100, 2)
+        temp_pt.loc[:,f"{column}_%"] = round(temp_pt.loc[:,column] / temp_pt.loc[:,column].max() * 100, 2)
 
     # For Overall
     with tabs[0]:
