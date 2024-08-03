@@ -119,8 +119,72 @@ class map:
         population = pl.read_parquet("./data/information/str_ascii_household.parquet")
 
         return population, district_population
+    
+    def descriptive_analysis(df:pd.DataFrame) -> pd.DataFrame:
+        # Import necessary packages
+        from scipy.stats import skew, kurtosis, shapiro, norm, spearmanr, iqr
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        import numpy as np
+        import statsmodels.api as sm
+        
+        # Using pandas default describe
+        descriptive_df = df.describe()
 
-def overlay_analysis() -> None:
+        # Calculate the skew and kurtosis
+        for formula in [np.var, skew, kurtosis, iqr]:
+            descriptive_df.loc[f"{formula.__name__}"] = [formula(df.loc[:,column]) 
+                                                         if df.loc[:,column].dtype == int or df.loc[:,column].dtype == float 
+                                                         else None 
+                                                         for column in descriptive_df.columns]
+
+        # Check for normal distribution
+        # Calculate the shapiro
+        shapiro_values = [shapiro(df.loc[:,column])
+                          if df.loc[:,column].dtype == int or df.loc[:,column].dtype == float 
+                          else None 
+                          for column in descriptive_df.columns]
+        
+        # Put the shapiro and its p_value into the descriptive df
+        descriptive_df.loc["shapiro"] = [shapiro_value[0] for shapiro_value in shapiro_values]
+        descriptive_df.loc["shapiro_p_value"] = [shapiro_value[1] for shapiro_value in shapiro_values]
+
+        # Show the dataframe
+        st.dataframe(descriptive_df, use_container_width=True)
+
+        # Divider
+        st.divider()
+
+        # Plot the graph
+        for column_name in descriptive_df.columns:
+            try:
+                st.write(f"Descriptive Chart for {column_name}:")
+                # Prepare the subplot
+                fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
+
+                # Histogram
+                ax1.hist(df.loc[:,column_name], bins=len(df.loc[:,column_name].unique()), edgecolor='black')
+                ax1.set_xlabel(column_name)
+                ax1.set_ylabel('Frequency')
+
+                # QQ plot
+                sm.qqplot(df.rename_axis(None, axis=1).reset_index().loc[:,column_name], line='45', ax=ax1, fit = True)
+
+                # Box plot
+                sns.boxplot(df.loc[:,column_name], ax=ax3)
+
+                # Show the plot
+                st.pyplot(fig, use_container_width=True)
+                # Put a divider
+                st.divider()
+
+            except:
+                st.write("failed")
+                
+        # Return the descriptive_df
+        return descriptive_df
+
+def str_map_analysis() -> None:
     # Header of the page
     st.markdown(""" <style> .header {font-size:40px; text-transform: capitalize; font-variant: small-caps; text-align: center; background-color: #FF0000}
                             .subheader {font-size:20px; text-transform: capitalize; font-variant: small-caps; text-align: center}
@@ -249,7 +313,7 @@ def overlay_analysis() -> None:
         
         # Summary of the pivoted table
         with st.expander("Summary of District Pivot Table"):
-            st.dataframe(merge_pt.describe(), use_container_width=True)
+            descriptive_df = map.descriptive_analysis(merge_pt)
         
     elif map_selection == "Parlimen Chorepleth":
         # TO pivot with percentage
@@ -278,4 +342,4 @@ def overlay_analysis() -> None:
     #     st.dataframe(population)
 
 if __name__ == "__main__":
-    overlay_analysis()
+    str_map_analysis()

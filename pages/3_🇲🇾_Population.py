@@ -70,7 +70,7 @@ class map:
     
     def descriptive_analysis(df:pd.DataFrame) -> pd.DataFrame:
         # Import necessary packages
-        from scipy.stats import skew, kurtosis, shapiro, norm, spearmanr
+        from scipy.stats import skew, kurtosis, shapiro, norm, spearmanr, iqr
         from matplotlib import pyplot as plt
         import seaborn as sns
         import numpy as np
@@ -80,7 +80,7 @@ class map:
         descriptive_df = df.describe()
 
         # Calculate the skew and kurtosis
-        for formula in [np.var, skew, kurtosis]:
+        for formula in [np.var, skew, kurtosis, iqr]:
             descriptive_df.loc[f"{formula.__name__}"] = [formula(df.loc[:,column]) 
                                                          if df.loc[:,column].dtype == int or df.loc[:,column].dtype == float 
                                                          else None 
@@ -106,19 +106,29 @@ class map:
         # Plot the graph
         for column_name in descriptive_df.columns:
             try:
+                st.write(f"Descriptive Chart for {column_name}:")
+                # Prepare the subplot
+                fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
+
+                # Histogram
+                ax1.hist(df.loc[:,column_name], bins=len(df.loc[:,column_name].unique()), edgecolor='black')
+                ax1.set_xlabel(column_name)
+                ax1.set_ylabel('Frequency')
+
                 # QQ plot
-                st.write(f"Historgram for {column_name}:")
-                fig, ax1 = plt.subplots()
                 sm.qqplot(df.rename_axis(None, axis=1).reset_index().loc[:,column_name], line='45', ax=ax1, fit = True)
+
+                # Box plot
+                sns.boxplot(df.loc[:,column_name], ax=ax3)
+
+                # Show the plot
                 st.pyplot(fig, use_container_width=True)
-                # st.plotly_chart(px.histogram(df.loc[:,("district",column_name)], 
-                #                              x=column_name, ), use_container_width=True)
+                # Put a divider
                 st.divider()
 
             except:
                 st.write("failed")
                 
-        
         # Return the descriptive_df
         return descriptive_df
                 
