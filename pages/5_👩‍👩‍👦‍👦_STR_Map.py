@@ -206,7 +206,7 @@ def overlay_analysis() -> None:
         #                     .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
         
         temp_pt = population.to_pandas()\
-                            .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=True)
+                            .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=True).reset_index()
         temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc["All", "estimated_str"] * 100, 2)
 
         # For district population
