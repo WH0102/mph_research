@@ -104,10 +104,12 @@ class map:
         for column_name in descriptive_df.columns:
             try:
                 # QQ plot
-                st.write(f"QQ Plot for {column_name}:")
+                st.write(f"Historgram for {column_name}:")
                 fig, ax1 = plt.subplots()
-                sm.qqplot(df.loc[:,column_name], line='45', ax=ax1, fit = True)
+                sm.qqplot(df.rename_axis(None, axis=1).reset_index().loc[:,column_name], line='45', ax=ax1, fit = True)
                 st.pyplot(fig, use_container_width=True)
+                # st.plotly_chart(px.histogram(df.loc[:,("district",column_name)], 
+                #                              x=column_name, ), use_container_width=True)
                 st.divider()
 
             except:
