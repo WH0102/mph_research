@@ -168,7 +168,7 @@ class map:
                 ax1.set_ylabel('Frequency')
 
                 # QQ plot
-                sm.qqplot(df.rename_axis(None, axis=1).reset_index().loc[:,column_name], line='45', ax=ax1, fit = True)
+                sm.qqplot(df.rename_axis(None, axis=1).reset_index().loc[:,column_name], line='45', ax=ax2, fit = True)
 
                 # Box plot
                 sns.boxplot(df.loc[:,column_name], ax=ax3)
