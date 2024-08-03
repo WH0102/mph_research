@@ -212,11 +212,10 @@ def overlay_analysis() -> None:
         # Merge the dataframe
         merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
         
-        
         # for column in [column for column in temp_df.columns if column != "population"]:
         for column in ["2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01"]:
             # Calculate percentage for population
-            temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
+            merge_pt.loc[:,f"{column}_%"] = round(merge_pt.loc[:,column] / merge_pt.loc[:,column].sum() * 100, 2)
             # Calculate the str percentage
             merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / (merge_pt.loc[:,column].sum() * 1000) * 100, 2)            
 
