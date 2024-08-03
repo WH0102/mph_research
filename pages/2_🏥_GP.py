@@ -36,10 +36,6 @@ def read_google_sheet():
 
     return pd.DataFrame(worksheet.get_all_records())
 
-# @st.cache_data
-# def read_gp_data() -> pd.DataFrame:
-#     return pd.read_hdf("./geo_project/streamlit/data/gp/gp.h5")
-
 def gp_analysis() -> None:
     # Prepare the data first, if error will prevent the code from running
     df = read_google_sheet()
@@ -61,8 +57,8 @@ def gp_analysis() -> None:
 
     # To get all the gp from ProtectHealth Webpage
     with st.expander("""Code To get latest list of GP From ProtectHealth Webpage"""):
-        st.code(
-            """# Create empty dataframe
+        st.code("""
+    # Create empty dataframe
     df = pd.DataFrame()
 
     # To loop through the **kwargs

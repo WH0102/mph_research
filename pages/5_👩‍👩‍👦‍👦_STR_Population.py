@@ -95,37 +95,21 @@ class map:
                           mapbox_zoom=mapbox_zoom, 
                           mapbox_center=mapbox_center,
                           )
-        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         
         # Return fig
         return fig
 
-@st.cache_data
-def read_data():
-    import gspread
-    import ast
-    from google.oauth2.service_account import Credentials
-    scopes = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
+    @st.cache_data
+    def read_data():
+        population = pl.read_parquet("./data/population/str_ascii_household.parquet")
 
-    credentials = Credentials.from_service_account_info(
-        ast.literal_eval(os.getenv("GSPREAD")),
-        scopes=scopes
-    )
+        district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
+                            .with_columns(pl.col("age").str.replace("5-9", "05-09"))
+        for key, value in map._dict_district.items():
+            district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
 
-    gc = gspread.authorize(credentials)
-
-    sh = gc.open_by_url("https://docs.google.com/spreadsheets/d/1qFEXMLsWHXQIvv3gUflwObSOZPqklw8TD_VXilI2ojo/edit")
-
-    worksheet = sh.get_worksheet(0)
-
-    gp = pd.DataFrame(worksheet.get_all_records())
-
-    population = pl.read_parquet("./data/population/str_ascii_household.parquet")
-
-    return gp, population
+        return population, district_population
 
 def overlay_analysis() -> None:
     # Header of the page
@@ -144,7 +128,7 @@ def overlay_analysis() -> None:
     st.divider()
 
     # Load the data
-    gp, population = read_data()
+    population, district_population = map.read_data()
 
     # To put option for choropleth plot
     col1, col2 = st.columns(2)
@@ -172,17 +156,8 @@ def overlay_analysis() -> None:
 
     # To allow user to select which type of map to present
     map_selection = st.radio("Select Type of Map to display", 
-                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Overlay Map"],
+                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Scatter Buble Map"],
                              horizontal=True)
-    
-    # To display the GP 
-    # if map_selection == "GP Only":
-    #     gp_fig = px.scatter_mapbox(gp, lat="Latitude", lon="Longitude", 
-    #                            color="district", 
-    #                            text="clinic_name",
-    #                            center={"lat": 4.389059008652357, "lon": 108.65244272591418},
-    #                            mapbox_style=mapbox_style)
-    #     st.plotly_chart(gp_fig, use_container_width=True)
 
     if map_selection == "Density Map":
         # Prepare the dataset
@@ -204,7 +179,7 @@ def overlay_analysis() -> None:
         # Display the figure    
         st.plotly_chart(fig, use_container_width=True)
 
-    elif map_selection == "Overlay Map":
+    elif map_selection == "Scatter Buble Map":
         # st.write("Under Construction")
         fig = px.scatter_mapbox(temp_pt, lat="Y", lon="X",
                                 size="estimated_str", color="state",
