@@ -112,7 +112,7 @@ class map:
         for key, value in map._dict_district.items():
             district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
 
-        population = pl.read_parquet("./data/population/str_ascii_household.parquet")
+        population = pl.read_parquet("./data/information/str_ascii_household.parquet")
 
         return population, district_population
 
