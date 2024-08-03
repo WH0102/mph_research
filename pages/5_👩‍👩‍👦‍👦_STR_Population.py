@@ -169,6 +169,7 @@ def overlay_analysis() -> None:
     if map_selection == "Density Map":
         # Prepare the dataset
         temp_pt = population.select("X","Y", "estimated_str").to_pandas()
+        # Plot the density map
         fig = go.Figure(go.Densitymapbox(lat=temp_pt["Y"], lon=temp_pt["X"], z=temp_pt.loc[:,"estimated_str"],
                                  radius=radius,
                                  autocolorscale = False, 
@@ -187,7 +188,9 @@ def overlay_analysis() -> None:
         st.plotly_chart(fig, use_container_width=True)
 
     elif map_selection == "Scatter Buble Map":
-        # st.write("Under Construction")
+        # Prepare the dataset
+        temp_pt = population.select("X","Y", "estimated_str").to_pandas()
+        # Plot the scatter bubbule map
         fig = px.scatter_mapbox(temp_pt, lat="Y", lon="X",
                                 size="estimated_str", color="state",
                                 color_continuous_scale=color_continuous_scale,
@@ -205,12 +208,15 @@ def overlay_analysis() -> None:
         temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
         
+        # Calculate percentage
+        for column in [column for column in temp_df.columns if column != "population"]:
+            temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
+
         # Merge the dataframe
         merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
 
         # Calculate percentage
         for column in [column for column in temp_df.columns if column != "population"]:
-            temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
             # Calculate the str percentage
             merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / merge_pt.loc[:,column].sum() / 10, 2)
 
