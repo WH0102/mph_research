@@ -211,11 +211,9 @@ def overlay_analysis() -> None:
         # Calculate percentage
         for column in [column for column in temp_df.columns if column != "population"]:
             temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
-            merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / merge_pt.loc[:,column].sum() * 100, 2)
+            # Calculate the str percentage
+            merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / merge_pt.loc[:,column].sum() / 10, 2)
 
-        # Calculate the str percentage
-
-        
         # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
                                             df = temp_pt,
