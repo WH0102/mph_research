@@ -211,7 +211,7 @@ def overlay_analysis() -> None:
         # Calculate percentage
         for column in [column for column in temp_df.columns if column != "population"]:
             temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
-            merge_pt.loc[:,f"{column}_str_%"] = round(temp_df.loc[:,"estimated_str"] / temp_df.loc[:,column].sum() * 100, 2)
+            merge_pt.loc[:,f"{column}_str_%"] = round(merge_pt.loc[:,"estimated_str"] / merge_pt.loc[:,column].sum() * 100, 2)
 
         # Calculate the str percentage
 
