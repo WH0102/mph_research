@@ -92,7 +92,7 @@ def overlay_analysis():
     tabs = st.tabs(["Overview", ] + gp._district_name_list)
 
     with tabs[0]:
-        st.markdown("""<p class="header">Summary of Distance Between Population and Active SPM Service Providing GPs According to District</p>""", unsafe_allow_html=True)
+        st.markdown("""<p class="body_header">Summary of Distance Between Population and Active SPM Service Providing GPs According to District</p>""", unsafe_allow_html=True)
         # Perform pivot table operation
         pivot_table = population.query(f"code_state_district.isin({gp._district_code_list})")\
             .pivot_table(
