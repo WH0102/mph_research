@@ -25,8 +25,8 @@ class map:
         'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 'stamen-watercolor'
     ]
     _color_scheme = [
-        'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance',
-        'blackbody', 'bluered', 'blues', 'blugrn', 'bluyl', 'brbg',
+        'blues', 'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 
+        'balance', 'blackbody', 'bluered', 'blugrn', 'bluyl', 'brbg',
         'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl',
         'darkmint', 'deep', 'delta', 'dense', 'earth', 'edge', 'electric',
         'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 'greys',
@@ -174,7 +174,6 @@ def overlay_analysis() -> None:
     map_selection = st.radio("Select Type of Map to display", 
                              options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Overlay Map"],
                              horizontal=True)
-    
     
     # To display the GP 
     # if map_selection == "GP Only":

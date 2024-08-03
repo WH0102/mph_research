@@ -21,8 +21,8 @@ class map:
         'open-street-map', 'white-bg', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner', 'stamen-watercolor'
     ]
     _color_scheme = [
-        'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance',
-        'blackbody', 'bluered', 'blues', 'blugrn', 'bluyl', 'brbg',
+        'blues', 'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 
+        'balance', 'blackbody', 'bluered', 'blugrn', 'bluyl', 'brbg',
         'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl',
         'darkmint', 'deep', 'delta', 'dense', 'earth', 'edge', 'electric',
         'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 'greys',
@@ -93,13 +93,19 @@ def population_analysis() -> None:
     col1, col2 = st.columns(2)
     with col1:
         color_continuous_scale = st.selectbox("color_continuous_scale", options=map._color_scheme)
-        # To select Year
-        year_selection = st.selectbox("Year for Population", options=district_population.select(pl.col("date").cast(pl.String),"district").to_pandas().sort_values("date", ascending=False)["date"].unique())
-        district_population = district_population.filter(pl.col("date").cast(pl.String)==year_selection)
+        # # To select Year
+        # year_selection = st.selectbox("Year for Population", options=district_population.select(pl.col("date").cast(pl.String),"district").to_pandas().sort_values("date", ascending=False)["date"].unique())
+        # district_population = district_population.filter(pl.col("date").cast(pl.String)==year_selection)
         
         # To select Sex
         sex = st.selectbox("Sex", options=district_population.select("district","sex").to_pandas().sort_values("sex")["sex"].unique())
         district_population = district_population.filter(pl.col("sex")==sex)
+
+        # To select district
+        district_selection = st.multiselect("Districts", options=district_population.select("district","population").to_pandas().sort_values("district")["district"].unique())
+        if district_selection != []:
+            district_population = district_population.filter(pl.col("district").is_in(district_selection))
+
     with col2:
         mapbox_style = st.selectbox("Mapbox Style", options=map._mapbox_style)
         
@@ -110,17 +116,13 @@ def population_analysis() -> None:
         # To select Age
         age = st.selectbox("Age", options=district_population.select("district","age").to_pandas().sort_values("age", ascending=False)["age"].unique())
         district_population = district_population.filter(pl.col("age")==age)
-
-    # To select district
-    district_selection = st.multiselect("Districts", options=district_population.select("district","population").to_pandas().sort_values("district")["district"].unique())
-    if district_selection != []:
-        district_population = district_population.filter(pl.col("district").is_in(district_selection))
         
     # Plot choropleth
     st.plotly_chart(px.choropleth_mapbox(district_population.to_pandas(), 
                                          geojson=district_geojson,
                                          featureidkey="properties.district",
                                          locations="district",
+                                         animation_frame="date",
                                          center={"lat": 4.389059008652357, "lon": 108.65244272591418},
                                          color="population",
                                          color_continuous_scale=color_continuous_scale,

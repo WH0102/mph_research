@@ -1,4 +1,5 @@
 gspread
+geopandas
 pygsheets
 numpy
 openpyxl
