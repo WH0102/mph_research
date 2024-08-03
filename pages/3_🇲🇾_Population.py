@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import date
 import polars as pl
+import pandas as pd
 import plotly.express as px
 from itertools import combinations
 import os
@@ -63,6 +64,56 @@ class map:
 
         # Return the geojson_data
         return geojson_data
+    
+    def descriptive_analysis(df:pd.DataFrame) -> pd.DataFrame:
+        # Import necessary packages
+        from scipy.stats import skew, kurtosis, shapiro, norm, spearmanr
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        import numpy as np
+        import statsmodels.api as sm
+        
+        # Using pandas default describe
+        descriptive_df = df.describe()
+
+        # Calculate the skew and kurtosis
+        for formula in [np.var, skew, kurtosis]:
+            descriptive_df.loc[f"{formula.__name__}"] = [formula(df.loc[:,column]) 
+                                                         if df.loc[:,column].dtype == int or df.loc[:,column].dtype == float 
+                                                         else None 
+                                                         for column in descriptive_df.columns]
+
+        # Check for normal distribution
+        # Calculate the shapiro
+        shapiro_values = [shapiro(df.loc[:,column])
+                          if df.loc[:,column].dtype == int or df.loc[:,column].dtype == float 
+                          else None 
+                          for column in descriptive_df.columns]
+        
+        # Put the shapiro and its p_value into the descriptive df
+        descriptive_df.loc["shapiro"] = [shapiro_value[0] for shapiro_value in shapiro_values]
+        descriptive_df.loc["shapiro_p_value"] = [shapiro_value[1] for shapiro_value in shapiro_values]
+
+        # Show the dataframe
+        st.dataframe(descriptive_df, use_container_width=True)
+
+        # Divider
+        st.divider()
+
+        # Plot the graph
+        for column_name in descriptive_df.columns:
+            try:
+                # QQ plot
+                st.write(f"QQ Plot for {column_name}:")
+                st.pyplot(sm.qqplot(df.loc[:,column_name], line='45', fit = True), use_container_width=True)
+                st.divider()
+
+            except:
+                continue
+        
+        # Return the descriptive_df
+        return descriptive_df
+                
 
 def population_analysis() -> None:
     # Header of the page
@@ -133,30 +184,36 @@ def population_analysis() -> None:
     if district_selection != []:
         district_population = district_population.filter(pl.col("district").is_in(district_selection))
 
+    # Divider
+    st.divider()
+
     # Create tabs with name
-    tabs = st.tabs(["District", ] + map._reversed_key)
+    tabs = st.tabs(["District", "District Descriptive", ] + map._reversed_key)
+
+     # Prepare overall df
+    temp_df = district_population.filter(pl.col("sex")=="both",
+                                            pl.col("age")=="overall",
+                                            pl.col("ethnicity")=="overall")
+    
+    temp_pt = temp_df.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
+                        .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
+
+    # Calculate percentage
+    for column in [column for column in temp_pt.columns if column != "population"]:
+        temp_pt.loc[:,f"{column}_%"] = round(temp_pt.loc[:,column] / temp_pt.loc[:,column].sum() * 100, 2)
 
     # For Overall
     with tabs[0]:
-        # Prepare overall df
-        temp_df = district_population.filter(pl.col("sex")=="both",
-                                             pl.col("age")=="overall",
-                                             pl.col("ethnicity")=="overall")
-        
-        temp_pt = temp_df.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
-                         .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
-
-        # Calculate percentage
-        for column in [column for column in temp_pt.columns if column != "population"]:
-            temp_pt.loc[:,f"{column}_%"] = round(temp_pt.loc[:,column] / temp_pt.loc[:,column].sum() * 100, 2)
-
         # Pivot and show the dataframe
         st.dataframe(temp_pt, use_container_width=True)
+
+    with tabs[1]:
+        descriptive_df = map.descriptive_analysis(temp_pt)
 
     # Start looping
     for num in range(0, 3):
          # Loop through tabs
-         with tabs[num+1]:
+         with tabs[num+2]:
             # Pivot based on a single column but ensure other columns use overall or both
             temp_df = district_population.filter(pl.col(map._filter_list[num][0][0])==map._filter_list[num][1][0],
                                                 pl.col(map._filter_list[num][0][1])==map._filter_list[num][1][1])\

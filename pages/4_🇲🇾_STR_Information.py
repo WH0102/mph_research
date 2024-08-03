@@ -17,9 +17,9 @@ px.set_mapbox_access_token(os.getenv("MAPBOX_TOKEN"))
 if os.path.dirname(os.getcwd()) not in sys.path:
     sys.path.append(os.path.dirname(os.getcwd()))
 
-from .function.file import file
-from .function.map import map
-from .function.descriptive import descriptive
+from function.file import file
+from function.map import map
+from function.descriptive import descriptive
 
 @st.cache_data
 def read_data():
