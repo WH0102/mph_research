@@ -108,7 +108,8 @@ class map:
         
 
         district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
-                            .with_columns(pl.col("age").str.replace("5-9", "05-09"))
+                            .with_columns(pl.col("age").str.replace("5-9", "05-09"),
+                                          pl.col("date").cast(pl.Date).cast(pl.String))
         for key, value in map._dict_district.items():
             district_population = district_population.with_columns(pl.col("district").str.replace(key, value))
 
