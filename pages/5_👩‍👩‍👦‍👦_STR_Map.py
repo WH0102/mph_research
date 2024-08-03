@@ -129,7 +129,7 @@ def overlay_analysis() -> None:
 
     # Title
     st.divider()
-    st.markdown("""<p class="header">Overlay Analysis</p>""", unsafe_allow_html=True)
+    st.markdown("""<p class="header">STR Population Analysis</p>""", unsafe_allow_html=True)
     st.markdown(f'<p class="subheader">Last Update = {date(2024, 6, 28)}</p>', unsafe_allow_html=True)
     st.divider()
 
@@ -202,9 +202,13 @@ def overlay_analysis() -> None:
 
     elif map_selection == "District Chorepleth":
         # To pivot with percentage for STR population
-        temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())\
-                            .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
+        # temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())\
+        #                     .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
         
+        temp_pt = population.to_pandas()\
+                            .pivot_table(index = "district", values="estimated_str", aggfunc=sum, margins=True)
+        temp_pt.loc[:,"estimated_str_percentage"] = round(temp_pt.loc[:,"estimated_str"] / temp_pt.loc["All", "estimated_str"] * 100, 2)
+
         # For district population
         temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
