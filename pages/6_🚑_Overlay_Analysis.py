@@ -58,6 +58,9 @@ class map:
         "Sp Utara":"Seberang Perai Utara" 
     }
 
+    _summary_column_name = ["District Name", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis", "shapiro"]
+    _summary_function_list = [np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
+
     def read_data():
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
         population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")
@@ -94,17 +97,17 @@ def overlay_analysis():
             .pivot_table(
                 index="district", 
                 values="distance", 
-                aggfunc=[np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
+                aggfunc=map._summary_function_list
             ).reset_index()
 
         # Flatten the MultiIndex columns
-        # pivot_table.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in pivot_table.columns]
-        pivot_table.columns = ["district", "mean", "standard deviation", "min", "max", "median", "iqr", "skew", "kurtosis", "shapiro"]
+        pivot_table.columns = map._summary_column_name
 
         # Separate the Shapiro-Wilk test results into two columns
         for index, row in pivot_table.iterrows():
             pivot_table.loc[index, "Shapiro_stats"] = float(row["shapiro"][0])
             pivot_table.loc[index, "Shapiro_p_value"] = float(row["shapiro"][1])
+
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.drop(columns="shapiro").round(2), 
                      hide_index=True, use_container_width=True)
