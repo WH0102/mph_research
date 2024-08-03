@@ -139,6 +139,7 @@ def overlay_analysis() -> None:
         district_selection = st.multiselect("Districts", options=population.sort("district").select("district").to_pandas()["district"].unique())
         if district_selection != []:
             population = population.filter(pl.col("district").is_in(district_selection))
+            district_population = district_population.filter(pl.col("district").is_in(district_selection))
 
         # For density map radius
         radius = st.slider("Radius in Density Map", min_value=1, max_value=100, value=20)
@@ -188,11 +189,20 @@ def overlay_analysis() -> None:
                                 opacity=opacity)
 
         st.plotly_chart(fig, use_container_width=True)
+
     elif map_selection == "District Chorepleth":
-        temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())
-        # DDisplay the chorepleth map
+        # To pivot with percentage
+        temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())\
+                            .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
+        temp_district = district_population.to_pandas()\
+                            .pivot_table(index = "district", columns="date", values="population", aggfunc=sum)
+        # Calculate percentage
+        for column in [column for column in temp_district.columns if column != "district"]:
+            temp_district.loc[:,f"{column}_%"] = round(temp_district.loc[:,column] / temp_district.loc[:,column].max() * 100, 2)
+        
+        # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
-                                            df = temp_pt.to_pandas(),
+                                            df = temp_pt,
                                             location="district",
                                             z="estimated_str",
                                             featureidkey="district",
@@ -202,15 +212,19 @@ def overlay_analysis() -> None:
                                             marker_line_width = 0.5,
                                             marker_opacity = 0.5,),
                         use_container_width=True)
-        # Show the pivoted table 
-        st.dataframe(temp_pt.with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas(), use_container_width=True)
         
+        # Show the pivoted table 
+        st.dataframe(temp_pt.merge(temp_district.reset_index(), how="outer", on="district"), 
+                     use_container_width=True, hide_index=True)
         
     elif map_selection == "Parlimen Chorepleth":
-        temp_pt = population.group_by("parlimen").agg(pl.col("estimated_str").sum())
-        # Show the chorepleth first
+        # TO pivot with percentage
+        temp_pt = population.group_by("parlimen").agg(pl.col("estimated_str").sum())\
+                            .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
+        
+        # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/electoral_0_parlimen.geojson",
-                                            df = temp_pt.to_pandas(),
+                                            df = temp_pt,
                                             location="parlimen",
                                             z="estimated_str",
                                             featureidkey="parlimen",
@@ -221,12 +235,12 @@ def overlay_analysis() -> None:
                                             marker_opacity = 0.5,),
                         use_container_width=True)
         #Show the pivoted table
-        st.dataframe(temp_pt.with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas(), use_container_width=True)
+        st.dataframe(temp_pt, use_container_width=True)
 
     # Provide divider and then allow expansion for original dataframe
-    st.divider()
-    with st.expander("Original DataFrame"):
-        st.dataframe(population)
+    # st.divider()
+    # with st.expander("Original DataFrame"):
+    #     st.dataframe(population)
 
 if __name__ == "__main__":
     overlay_analysis()
