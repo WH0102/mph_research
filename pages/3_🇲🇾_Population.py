@@ -37,10 +37,13 @@ class map:
         'tealrose', 'tempo', 'temps', 'thermal', 'tropic', 'turbid',
         'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
     ]
-    _dict_district = {"Cameron Highland":"Cameron Highlands",
-                      "Sp Selatan":"Seberang Perai Selatan",
-                      "Sp Tengah":"Seberang Perai Tengah",
-                      "Sp Utara":"Seberang Perai Utara"}
+    _dict_district = {
+        "Cameron Highland":"Cameron Highlands",
+        "Cameron Highlandss":"Cameron Highlands",
+        "Sp Selatan":"Seberang Perai Selatan",
+        "Sp Tengah":"Seberang Perai Tengah",
+        "Sp Utara":"Seberang Perai Utara"
+    }
     
     # Prepare some filteration method
     _filter_value = {"sex":"both", "age":"overall", "ethnicity":"overall"}
