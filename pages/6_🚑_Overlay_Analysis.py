@@ -59,9 +59,9 @@ class map:
     }
 
     def read_data():
-        gp = pd.read_excel("./data/information/gp_list.xlsx")
+        gp_df = pd.read_excel("./data/information/gp_list.xlsx")
         population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")
-        return gp, population
+        return gp_df, population
 
 def overlay_analysis():
     # Header of the page
@@ -80,7 +80,7 @@ def overlay_analysis():
     st.divider()
 
     # Prepare the data and return error if something goes wrong
-    gp, population = map.read_data()
+    gp_df, population = map.read_data()
 
     # To divide intor 2 different section
     # 1. General
