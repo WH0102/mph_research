@@ -197,14 +197,17 @@ def overlay_analysis() -> None:
         st.plotly_chart(fig, use_container_width=True)
 
     elif map_selection == "District Chorepleth":
-        # To pivot with percentage
+        # To pivot with percentage for STR population
         temp_pt = population.group_by("district").agg(pl.col("estimated_str").sum())\
                             .with_columns((pl.col("estimated_str")/pl.col("estimated_str").sum() * 100).alias("Percentage")).to_pandas()
-        temp_district = district_population.to_pandas()\
-                            .pivot_table(index = "district", columns="date", values="population", aggfunc=sum)
+        
+        # For district population
+        temp_df = district_population.select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
+                         .pivot_table(index="district", columns="date", values="population", aggfunc=sum)
+
         # Calculate percentage
-        for column in [column for column in temp_district.columns if column != "district"]:
-            temp_district.loc[:,f"{column}_%"] = round(temp_district.loc[:,column] / temp_district.loc[:,column].max() * 100, 2)
+        for column in [column for column in temp_df.columns if column != "population"]:
+            temp_df.loc[:,f"{column}_%"] = round(temp_df.loc[:,column] / temp_df.loc[:,column].sum() * 100, 2)
         
         # Display the chorepleth map
         st.plotly_chart(map.draw_chorepleth(map_file = "./data/map/administrative_2_district.geojson",
