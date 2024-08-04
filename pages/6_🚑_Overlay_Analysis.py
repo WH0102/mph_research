@@ -158,6 +158,15 @@ def overlay_analysis():
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
 
+        # For the line histogram plot
+        st.plotly_chart(ff.create_distplot(hist_data=population["distance"],
+                                           group_labels="10 Districts",
+                                           bin_size=0.05,
+                                           curve_type="kde",
+                                           show_hist=False)\
+                          .update_layout(title_text='Curve and Rug Plot for Distance (km) Between STR Population and Active SPM Service Providers of All 10 Districts'),
+                                           use_container_width=True)
+
         # divider
         st.divider()
 
