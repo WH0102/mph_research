@@ -11,6 +11,7 @@ import os
 import sys
 from dotenv import load_dotenv
 import os
+import plotly.figure_factory as ff
 
 # To set the environement
 load_dotenv()
@@ -164,11 +165,18 @@ def overlay_analysis():
         st.plotly_chart(px.histogram(population, x="distance",
                                      histnorm='probability density',
                                      labels={'distance':'Distance in km'},
-                                     marginal="box",
+                                     marginal="rug",
                                      color="district",
                                      nbins=len(population)),
                                      text_auto=True, 
                         use_container_width=True)
+        
+        # test of ff
+        st.plotly_chart(ff.create_distplot(hist_data=[population.query(f"district=='{district}'")["distance"] for district in gp._district_name_list],
+                                           group_labels=gp._district_name_list,
+                                           bin_size=0.05,
+                                           curve_type="normal"),
+                                           use_container_width=True)
 
     # For descriptive analysis of districts
     for num in range(0, len(gp._district_name_list)):
