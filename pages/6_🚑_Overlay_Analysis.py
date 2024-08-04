@@ -85,10 +85,6 @@ class map:
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
                            .reset_index().rename(columns={"index":map._summary_column_name[0]})
 
-        # Trial to display the dataframe based on show_descriptive
-        if show_descriptive == True:
-            st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=False)
-
         # To display the histogram
         st.plotly_chart(px.histogram(df, x="distance",
                                      histnorm='probability density',
@@ -97,6 +93,10 @@ class map:
                                      nbins=len(df)),
                                      text_auto=True, 
                         use_container_width=True)
+        
+        # Trial to display the dataframe based on show_descriptive
+        if show_descriptive == True:
+            st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=False)
         
         # Return the descriptive_df
         return descriptive_df
