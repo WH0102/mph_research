@@ -138,8 +138,8 @@ def overlay_analysis():
 
         # Separate the Shapiro-Wilk test results into two columns
         for index, row in pivot_table.iterrows():
-            pivot_table.loc[index, "Shapiro_stats"] = float(row["shapiro"][0])
-            pivot_table.loc[index, "Shapiro_p_value"] = float(row["shapiro"][1])
+            pivot_table.loc[index, "Shapiro Stats"] = float(row["shapiro"][0])
+            pivot_table.loc[index, "Shapiro p value"] = float(row["shapiro"][1])
         
         # To display the histogram?
         descriptive_df = map.descriptive_analysis(population, index_name="10 Districts")
