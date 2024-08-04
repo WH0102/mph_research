@@ -145,7 +145,7 @@ def overlay_analysis():
                      hide_index=True, use_container_width=True)
         
         # To display the histogram?
-        descriptive_df = map.descriptive_analysis(population, index="10 Districts")
+        descriptive_df = map.descriptive_analysis(population, index_name="10 Districts")
 
 if __name__ == "__main__":
     overlay_analysis()
