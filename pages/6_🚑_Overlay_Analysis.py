@@ -63,7 +63,8 @@ class map:
 
     def read_data():
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
-        population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")
+        population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")\
+                       .query(f"code_state_district.isin({gp._district_code_list})")
         return gp_df, population
     
     def descriptive_analysis(df:pd.DataFrame,
@@ -76,13 +77,13 @@ class map:
         shapiro_value = shapiro(df["distance"])
 
         # Create the first dataframe
-        temp_df = pd.DataFrame({"shapiro_stats":[shapiro_value[0]],
-                                "shapiro_p_value":[shapiro_value[1]]},
-                                index=index_name)
+        temp_df = pd.DataFrame({"District":index_name,
+                                "shapiro_stats":[shapiro_value[0]],
+                                "shapiro_p_value":[shapiro_value[1]]})
         
         # To loop through the answer dict
         for key, value in answer_dict.items():
-            temp_df.loc[:,key] = value
+            temp_df.loc[temp_df.loc[:,"District"] == index_name, key] = value
 
         # Trial to display the dataframe
         st.dataframe(temp_df, use_container_width=True, hide_index=True)
@@ -124,8 +125,7 @@ def overlay_analysis():
     with tabs[0]:
         st.markdown("""<p class="body_header">Summary of Distance Between Population and Active SPM Service Providing GPs According to District</p>""", unsafe_allow_html=True)
         # Perform pivot table operation
-        pivot_table = population.query(f"code_state_district.isin({gp._district_code_list})")\
-            .pivot_table(
+        pivot_table = population.pivot_table(
                 index="district", 
                 values="distance", 
                 aggfunc=map._summary_function_list
@@ -144,8 +144,7 @@ def overlay_analysis():
                      hide_index=True, use_container_width=True)
         
         # To display the histogram?
-        map.descriptive_analysis(population.query(f"code_state_district.isin({gp._district_code_list})"),
-                                 index="10 Districts")
+        map.descriptive_analysis(population, index="10 Districts")
 
 if __name__ == "__main__":
     overlay_analysis()
