@@ -68,7 +68,8 @@ class map:
         return gp_df, population
     
     def descriptive_analysis(df:pd.DataFrame,
-                             index_name:str) -> pd.DataFrame:
+                             index_name:str,
+                             show_descriptive:bool = False) -> pd.DataFrame:
         # To put the summary of the df
         answer_dict = dict(zip(map._summary_column_name[1:-1],
                                [formula(df["distance"]) for formula in map._summary_function_list[:-1]]))
@@ -84,8 +85,9 @@ class map:
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
                            .reset_index().rename(columns={"index":map._summary_column_name[0]})
 
-        # Trial to display the dataframe
-        # st.dataframe(descriptive_df, use_container_width=True, hide_index=False)
+        # Trial to display the dataframe based on show_descriptive
+        if show_descriptive == True:
+            st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=False)
 
         # To display the histogram
         st.plotly_chart(px.histogram(df, x="distance",
@@ -123,7 +125,8 @@ def overlay_analysis():
     # 2. Per District
 
     tabs = st.tabs(["Overview", ] + gp._district_name_list)
-
+    
+    # For 1. General
     with tabs[0]:
         st.markdown("""<p class="body_header">Summary of Distance Between Population and Active SPM Service Providing GPs According to District</p>""", unsafe_allow_html=True)
         # Perform pivot table operation
@@ -142,7 +145,7 @@ def overlay_analysis():
             pivot_table.loc[index, "Shapiro p value"] = float(row["shapiro"][1])
         
         # To display the histogram?
-        descriptive_df = map.descriptive_analysis(population, index_name="10 Districts")
+        descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", show_descriptive = False)
 
         # To concat with descriptive_df
         pivot_table = pd.concat([descriptive_df,
@@ -150,6 +153,17 @@ def overlay_analysis():
 
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
+
+    # For descriptive analysis of districts
+    for num in range(0, len(gp._district_name_list)):
+        with tabs[num+1]:
+            # To confirm the district
+            st.markdown(f"""<p class="body_header">Summary of Distance Between Population and Active SPM Service Providing GPs According in {gp._district_name_list[num]}</p>""", unsafe_allow_html=True)
+
+            # Create the descriptive analysis for each district, along with histogram
+            descriptive_df = map.descriptive_analysis(population.query(f"district == '{gp._district_name_list[num]}'"),
+                                                      index_name = gp._district_name_list[num],
+                                                      show_descriptive = True)
 
 if __name__ == "__main__":
     overlay_analysis()
