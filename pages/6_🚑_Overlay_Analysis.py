@@ -159,8 +159,8 @@ def overlay_analysis():
         st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
 
         # For the line histogram plot
-        st.plotly_chart(ff.create_distplot(hist_data=list(population["distance"]),
-                                           group_labels=["10 Districts"],
+        st.plotly_chart(ff.create_distplot(hist_data=population["distance"].to_list(),
+                                           group_labels=["10 Districts",],
                                            bin_size=0.05,
                                            curve_type="kde",
                                            show_hist=False)\
