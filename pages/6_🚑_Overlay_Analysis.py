@@ -81,10 +81,11 @@ class map:
         answer_dict["Shapiro p value"] = shapiro_value[1]
 
         # Create descriptive_df
-        descriptive_df = pd.DataFrame(answer_dict, index=[index_name])
+        descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
+                           .reset_index().rename(columns={"index":map._summary_column_name[0]})
 
         # Trial to display the dataframe
-        st.dataframe(descriptive_df, use_container_width=True, hide_index=False)
+        # st.dataframe(descriptive_df, use_container_width=True, hide_index=False)
 
         # To display the histogram
         st.plotly_chart(px.histogram(df, x="distance",
@@ -139,13 +140,16 @@ def overlay_analysis():
         for index, row in pivot_table.iterrows():
             pivot_table.loc[index, "Shapiro_stats"] = float(row["shapiro"][0])
             pivot_table.loc[index, "Shapiro_p_value"] = float(row["shapiro"][1])
-
-        # Drop the original shapiro_test column then show it
-        st.dataframe(pivot_table.drop(columns="shapiro").round(2), 
-                     hide_index=True, use_container_width=True)
         
         # To display the histogram?
         descriptive_df = map.descriptive_analysis(population, index_name="10 Districts")
+
+        # To concat with descriptive_df
+        pivot_table = pd.concat([descriptive_df,
+                                 pivot_table.drop(columns="shapiro")], ignore_index=True)
+
+        # Drop the original shapiro_test column then show it
+        st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
 
 if __name__ == "__main__":
     overlay_analysis()
