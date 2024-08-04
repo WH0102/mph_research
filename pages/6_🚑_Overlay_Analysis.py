@@ -178,7 +178,7 @@ def overlay_analysis():
         st.plotly_chart(ff.create_distplot(hist_data=[population.query(f"district=='{district}'")["distance"] for district in gp._district_name_list],
                                            group_labels=gp._district_name_list,
                                            bin_size=0.05,
-                                           curve_type="normal",
+                                           curve_type="kde",
                                            show_hist=False)\
                           .update_layout(title_text='Curve and Rug Plot for Distance (km) Between STR Population and Active SPM Service Providers Among 10 Districts'),
                                            use_container_width=True)
