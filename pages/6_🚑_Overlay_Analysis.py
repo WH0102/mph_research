@@ -165,17 +165,22 @@ def overlay_analysis():
         st.plotly_chart(px.histogram(population, x="distance",
                                      histnorm='probability density',
                                      labels={'distance':'Distance in km'},
-                                     marginal="rug",
+                                     marginal="box",
                                      color="district",
                                      nbins=len(population)),
                                      text_auto=True, 
                         use_container_width=True)
         
+        # divider
+        st.divider()
+
         # test of ff
         st.plotly_chart(ff.create_distplot(hist_data=[population.query(f"district=='{district}'")["distance"] for district in gp._district_name_list],
                                            group_labels=gp._district_name_list,
                                            bin_size=0.05,
-                                           curve_type="normal"),
+                                           curve_type="normal",
+                                           show_hist=False)\
+                          .update_layout(title_text='Curve and Rug Plot for Distance (km) Between STR Population and Active SPM Service Providers Among 10 Districts'),
                                            use_container_width=True)
 
     # For descriptive analysis of districts
