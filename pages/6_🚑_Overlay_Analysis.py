@@ -68,25 +68,23 @@ class map:
         return gp_df, population
     
     def descriptive_analysis(df:pd.DataFrame,
-                             index_name:str) -> pd.DataFrame:
+                             index_name:str) -> None:
         # To put the summary of the df
-        answer_dict = dict(zip(map._summary_column_name[:-1],
+        answer_dict = dict(zip(map._summary_column_name[1:-1],
                                [formula(df["distance"]) for formula in map._summary_function_list[:-1]]))
         
         # Count shapiro first
         shapiro_value = shapiro(df["distance"])
 
-        # Create the first dataframe
-        temp_df = pd.DataFrame({"District":index_name,
-                                "shapiro_stats":[shapiro_value[0]],
-                                "shapiro_p_value":[shapiro_value[1]]})
-        
-        # To loop through the answer dict
-        for key, value in answer_dict.items():
-            temp_df.loc[temp_df.loc[:,"District"] == index_name, key] = value
+        # Add shapiro to the dictionary
+        answer_dict["Shapiro Stats"] = shapiro_value[0]
+        answer_dict["Shapiro p value"] = shapiro_value[1]
+
+        # Create descriptive_df
+        descriptive_df = pd.DataFrame(answer_dict, index=[index_name])
 
         # Trial to display the dataframe
-        st.dataframe(temp_df, use_container_width=True, hide_index=True)
+        st.dataframe(descriptive_df, use_container_width=True, hide_index=False)
 
         # To display the histogram
         st.plotly_chart(px.histogram(df, x="distance",
