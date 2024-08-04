@@ -144,7 +144,8 @@ def overlay_analysis():
                      hide_index=True, use_container_width=True)
         
         # To display the histogram?
-        map.descriptive_analysis(population.query(f"code_state_district.isin({gp._district_code_list})"))
+        map.descriptive_analysis(population.query(f"code_state_district.isin({gp._district_code_list})"),
+                                 index="10 Districts")
 
 if __name__ == "__main__":
     overlay_analysis()
