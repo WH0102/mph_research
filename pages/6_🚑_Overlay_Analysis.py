@@ -113,6 +113,12 @@ def overlay_analysis():
         st.dataframe(pivot_table.drop(columns="shapiro").round(2), 
                      hide_index=True, use_container_width=True)
         
+        # To display information
+        columns = st.columns(len(map._summary_function_list))
+        for num in range(0, len(columns)):
+            columns[num].metric(map._summary_column_name[num], 
+                                map._summary_function_list[num](population.query(f"code_state_district.isin({gp._district_code_list})").loc[:,"distance"]))
+        
         # To display the histogram?
         st.plotly_chart(px.histogram(population.query(f"code_state_district.isin({gp._district_code_list})"),
                                      x="distance",
