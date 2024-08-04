@@ -65,6 +65,32 @@ class map:
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
         population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")
         return gp_df, population
+    
+    def descriptive_analysis(df:pd.DataFrame) -> None:
+        # To create temp_df
+        temp_df = pd.DataFrame()
+        # To put the summary of the df
+        answer_dict = dict(zip(map._summary_column_name,
+                               [formula(df["distance"]) for formula in map._summary_function_list]))
+        # To loop through the answer dict
+        for key, value in answer_dict.items():
+            if type(value) == tuple:
+                temp_df.loc[:,"shapiro_stats"] = value[0]
+                temp_df.loc[:,"shapiro_p_value"] = value[1]
+            else:
+                temp_df.loc[:,key] = value
+
+        # Trial to display the dataframe
+        st.dataframe(temp_df, use_container_width=True, hide_index=True)
+
+        # To display the histogram
+        st.plotly_chart(px.histogram(df, x="distance",
+                                     histnorm='probability density',
+                                     labels={'distance':'Distance in km'},
+                                     marginal="box",
+                                     nbins=len(df)),
+                                     text_auto=True, 
+                        use_container_width=True)
 
 def overlay_analysis():
     # Header of the page
@@ -113,17 +139,8 @@ def overlay_analysis():
         st.dataframe(pivot_table.drop(columns="shapiro").round(2), 
                      hide_index=True, use_container_width=True)
         
-        # To display information
-        columns = st.columns(len(map._summary_function_list))
-        for num in range(0, len(columns)):
-            columns[num].metric(map._summary_column_name[num], 
-                                f"{map._summary_function_list[num](population.query(f"code_state_district.isin({gp._district_code_list})")["distance"]):,s}")
-        
         # To display the histogram?
-        st.plotly_chart(px.histogram(population.query(f"code_state_district.isin({gp._district_code_list})"),
-                                     x="distance",
-                                     nbins=len(population.query(f"code_state_district.isin({gp._district_code_list})"))),
-                        use_container_width=True)
+        map.descriptive_analysis(population.query(f"code_state_district.isin({gp._district_code_list})"))
 
 if __name__ == "__main__":
     overlay_analysis()
