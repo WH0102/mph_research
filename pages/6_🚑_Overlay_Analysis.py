@@ -117,7 +117,7 @@ def overlay_analysis():
         columns = st.columns(len(map._summary_function_list))
         for num in range(0, len(columns)):
             columns[num].metric(map._summary_column_name[num], 
-                                map._summary_function_list[num](population.query(f"code_state_district.isin({gp._district_code_list})").loc[:,"distance"]))
+                                f"{map._summary_function_list[num](population.query(f"code_state_district.isin({gp._district_code_list})")["distance"]):,s}")
         
         # To display the histogram?
         st.plotly_chart(px.histogram(population.query(f"code_state_district.isin({gp._district_code_list})"),
