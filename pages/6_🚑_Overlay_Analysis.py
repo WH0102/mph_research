@@ -97,6 +97,9 @@ class map:
         # Trial to display the dataframe based on show_descriptive
         if show_descriptive == True:
             st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=False)
+            # To put a divider
+            st.divider()
+
         
         # Return the descriptive_df
         return descriptive_df
@@ -153,6 +156,19 @@ def overlay_analysis():
 
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
+
+        # divider
+        st.divider()
+
+        # To display the histogram
+        st.plotly_chart(px.histogram(population, x="distance",
+                                     histnorm='probability density',
+                                     labels={'distance':'Distance in km'},
+                                     marginal="box",
+                                     color="district",
+                                     nbins=len(population)),
+                                     text_auto=True, 
+                        use_container_width=True)
 
     # For descriptive analysis of districts
     for num in range(0, len(gp._district_name_list)):
