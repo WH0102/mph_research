@@ -66,19 +66,23 @@ class map:
         population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")
         return gp_df, population
     
-    def descriptive_analysis(df:pd.DataFrame) -> None:
-        # To create temp_df
-        temp_df = pd.DataFrame()
+    def descriptive_analysis(df:pd.DataFrame,
+                             index_name:str) -> pd.DataFrame:
         # To put the summary of the df
-        answer_dict = dict(zip(map._summary_column_name,
+        answer_dict = dict(zip(map._summary_column_name[:-1],
                                [formula(df["distance"]) for formula in map._summary_function_list]))
+        
+        # Count shapiro first
+        shapiro_value = shapiro(df["distance"])
+
+        # Create the first dataframe
+        temp_df = pd.DataFrame({"shapiro_stats":[shapiro_value[0]],
+                                "shapiro_p_value":[shapiro_value[1]]},
+                                index=index_name)
+        
         # To loop through the answer dict
         for key, value in answer_dict.items():
-            if type(value) == tuple:
-                temp_df.loc[:,"shapiro_stats"] = value[0]
-                temp_df.loc[:,"shapiro_p_value"] = value[1]
-            else:
-                temp_df.loc[:,key] = value
+            temp_df.loc[:,key] = value
 
         # Trial to display the dataframe
         st.dataframe(temp_df, use_container_width=True, hide_index=True)
