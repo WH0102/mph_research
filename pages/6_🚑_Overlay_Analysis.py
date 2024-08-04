@@ -71,7 +71,7 @@ class map:
                              index_name:str) -> pd.DataFrame:
         # To put the summary of the df
         answer_dict = dict(zip(map._summary_column_name[:-1],
-                               [formula(df["distance"]) for formula in map._summary_function_list]))
+                               [formula(df["distance"]) for formula in map._summary_function_list[:-1]]))
         
         # Count shapiro first
         shapiro_value = shapiro(df["distance"])
