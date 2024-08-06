@@ -59,8 +59,8 @@ class map:
         "Sp Utara":"Seberang Perai Utara" 
     }
 
-    _summary_column_name = ["District Name", "Count of Points", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis", "shapiro"]
-    _summary_function_list = [len, np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
+    _summary_column_name = ["District Name", "Count of Points", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis"]
+    _summary_function_list = [len, np.mean, np.std, min, max, np.median, iqr, skew, kurtosis]
 
     def read_data():
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
@@ -73,8 +73,8 @@ class map:
                              gp_df:pd.DataFrame,
                              show_descriptive:bool = False) -> pd.DataFrame:
         # To put the summary of the df
-        answer_dict = dict(zip(map._summary_column_name[1:-1],
-                               [formula(df["distance"]) for formula in map._summary_function_list[:-1]]))
+        answer_dict = dict(zip(map._summary_column_name[1:],
+                               [formula(df["distance"]) for formula in map._summary_function_list]))
         
         # Count shapiro first
         shapiro_value = shapiro(df["distance"])
@@ -84,8 +84,8 @@ class map:
         answer_dict["Shapiro p value"] = shapiro_value[1]
 
         # To generate the number of GP in that area
-        # district_list = list(df.loc[:,"district"].unique())
-        # answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
+        district_list = list(df.loc[:,"district"].unique())
+        answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
         # gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
         #              .rename(columns={"clinic_name":"Number of GPs", "district":map._summary_column_name[0]})
 
@@ -159,7 +159,7 @@ def overlay_analysis():
         pivot_table.loc[:,"NUmber of GP"] = len(gp_df)
         
         # To display the histogram?
-        descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", show_descriptive = False)
+        descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", gp_df = gp_df, show_descriptive = False)
 
         # To concat with descriptive_df
         pivot_table = pd.concat([descriptive_df,
@@ -211,6 +211,7 @@ def overlay_analysis():
             # Create the descriptive analysis for each district, along with histogram
             descriptive_df = map.descriptive_analysis(population.query(f"district == '{gp._district_name_list[num]}'"),
                                                       index_name = gp._district_name_list[num],
+                                                      gp_df = gp_df,
                                                       show_descriptive = True)
 
 if __name__ == "__main__":
