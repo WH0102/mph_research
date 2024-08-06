@@ -108,7 +108,7 @@ class map:
         return fig
 
     def read_data():
-        gp_df = pl.read_excel("./data/inforamtion/gp_list.xlsx")
+        gp_df = pl.read_parquet("./data/inforamtion/gp_list.parquet")
 
         district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
                             .with_columns(pl.col("age").str.replace("5-9", "05-09"),
