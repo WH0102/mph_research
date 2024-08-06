@@ -86,8 +86,6 @@ class map:
         # To generate the number of GP in that area
         district_list = list(df.loc[:,"district"].unique())
         answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
-        # gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
-        #              .rename(columns={"clinic_name":"Number of GPs", "district":map._summary_column_name[0]})
 
         # Create descriptive_df
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
@@ -156,14 +154,17 @@ def overlay_analysis():
             pivot_table.loc[index, "Shapiro p value"] = float(row["shapiro"][1])
 
         # To merge with len(gp_df) and drop column shapiro
-        pivot_table.loc[:,"NUmber of GP"] = len(gp_df)
+        # pivot_table.loc[:,"Number of GP"] = len(gp_df)
+        gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
+                     .rename(columns={"district":map._summary_column_name[0], "clinic_name":"Number of GP"})
+        pivot_table = pivot_table.merge(gp_pt, how="left", on=map._summary_column_name[0])
         
         # To display the histogram?
         descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", gp_df = gp_df, show_descriptive = False)
 
         # To concat with descriptive_df
         pivot_table = pd.concat([descriptive_df,
-                                 pivot_table.drop(columns="shapiro")], ignore_index=True)
+                                 pivot_table.drop(columns=map._summary_column_name[-1])], ignore_index=True)
 
         # Drop the original shapiro_test column then show it
         st.dataframe(pivot_table.round(2), hide_index=True, use_container_width=True)
