@@ -287,7 +287,9 @@ def str_map_analysis() -> None:
 
         # Merge the dataframe .drop(columns="All") if use margins --True
         merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")\
-                          .merge(gp_df, how="left", on="district")
+                          .merge(gp_df, how="left", on="district").fillna(0)
+        # To calculate gp percentage
+        merge_pt.loc[merge_pt.loc[:,"Number of GPs"] > 0,"gp_to_population_ratio"] = merge_pt.loc[:,"estimated_str"] / merge_pt.loc[:,"Number of GPs"]
         
         # To prevent error of percentage upon selection of district:
         temp_dict = {"2020-01-01":32447.1, 
