@@ -219,10 +219,11 @@ def overlay_analysis():
         pivot_table = pivot_table.merge(gp_pt, how="left", on=map._summary_column_name[0])
 
         # Calculate ann
-        ann_dict = gp.ann(population, n_column="estimated_str", a_column="area", distance_column="distance")
+        for district in population.loc[:,"district"].unique():
+            ann_dict = gp.ann(population.query(f"district =='{district}'"), n_column="estimated_str", a_column="area", distance_column="distance")
         
-        for key,value in ann_dict.items():
-            pivot_table.loc[:,key] = value
+            for key,value in ann_dict.items():
+                pivot_table.loc[pivot_table.loc[:,"district"] == district,key] = value
         
         # To display the histogram?
         descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", gp_df = gp_df, show_descriptive = False)
