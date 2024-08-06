@@ -108,7 +108,7 @@ class map:
         return fig
 
     def read_data():
-        
+        gp_df = pl.read_excel("./data/inforamtion/gp_list.xlsx")
 
         district_population = pl.read_parquet('https://storage.dosm.gov.my/population/population_district.parquet')\
                             .with_columns(pl.col("age").str.replace("5-9", "05-09"),
@@ -118,7 +118,7 @@ class map:
 
         population = pl.read_parquet("./data/information/str_ascii_household.parquet")
 
-        return population, district_population
+        return population, district_population, gp_df
     
     def descriptive_analysis(df:pd.DataFrame) -> pd.DataFrame:
         # Import necessary packages
@@ -201,7 +201,7 @@ def str_map_analysis() -> None:
     st.divider()
 
     # Load the data
-    population, district_population = map.read_data()
+    population, district_population, gp_df = map.read_data()
 
     # To put option for choropleth plot
     col1, col2 = st.columns(2)
@@ -213,6 +213,7 @@ def str_map_analysis() -> None:
         if district_selection != []:
             population = population.filter(pl.col("district").is_in(district_selection))
             district_population = district_population.filter(pl.col("district").is_in(district_selection))
+            gp_df = gp_df
 
         # For density map radius
         radius = st.slider("Radius in Density Map", min_value=1, max_value=100, value=20)
