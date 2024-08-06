@@ -155,7 +155,7 @@ def overlay_analysis():
 
         # To merge with len(gp_df) and drop column shapiro
         # pivot_table.loc[:,"Number of GP"] = len(gp_df)
-        gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
+        gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len).reset_index()\
                      .rename(columns={"district":map._summary_column_name[0], "clinic_name":"Number of GP"})
         pivot_table = pivot_table.merge(gp_pt, how="left", on=map._summary_column_name[0])
         
