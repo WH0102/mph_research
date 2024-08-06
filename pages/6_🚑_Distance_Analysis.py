@@ -59,8 +59,8 @@ class map:
         "Sp Utara":"Seberang Perai Utara" 
     }
 
-    _summary_column_name = ["District Name", "Count of Points", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis"]
-    _summary_function_list = [len, np.mean, np.std, min, max, np.median, iqr, skew, kurtosis]
+    _summary_column_name = ["District Name", "Count of Points", "Mean", "Standard Deviation", "Min", "Max", "Median", "Inter-Quarter Range", "Skew", "Kurtosis", "shapiro"]
+    _summary_function_list = [len, np.mean, np.std, min, max, np.median, iqr, skew, kurtosis, shapiro]
 
     def read_data():
         gp_df = pd.read_excel("./data/information/gp_list.xlsx")
@@ -73,8 +73,8 @@ class map:
                              gp_df:pd.DataFrame,
                              show_descriptive:bool = False) -> pd.DataFrame:
         # To put the summary of the df
-        answer_dict = dict(zip(map._summary_column_name[1:],
-                               [formula(df["distance"]) for formula in map._summary_function_list]))
+        answer_dict = dict(zip(map._summary_column_name[1:-1],
+                               [formula(df["distance"]) for formula in map._summary_function_list[:-1]]))
         
         # Count shapiro first
         shapiro_value = shapiro(df["distance"])
