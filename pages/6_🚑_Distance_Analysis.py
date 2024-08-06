@@ -84,15 +84,14 @@ class map:
         answer_dict["Shapiro p value"] = shapiro_value[1]
 
         # To generate the number of GP in that area
-        # district_list = list(df.loc[:,"district"].unique())
-        # answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
-        gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
-                     .rename(columns={"clinic_name":"Number of GPs", "district":map._summary_column_name[0]})
+        district_list = list(df.loc[:,"district"].unique())
+        answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
+        # gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
+        #              .rename(columns={"clinic_name":"Number of GPs", "district":map._summary_column_name[0]})
 
         # Create descriptive_df
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
-                           .reset_index().rename(columns={"index":map._summary_column_name[0]})\
-                           .merge(gp_pt, how="left", on=map._summary_column_name[0])
+                           .reset_index().rename(columns={"index":map._summary_column_name[0]})
 
         # To display the histogram
         st.plotly_chart(px.histogram(df, x="distance",
