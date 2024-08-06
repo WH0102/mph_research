@@ -25,6 +25,61 @@ class gp:
         'Kuching', 'Petaling', 'Timur Laut', 'Ulu Langat', 'W.P. Kuala Lumpur'
     ]
 
+    # def ann(clinics:pd.DataFrame,
+    #         population:pd.DataFrame,
+    #         clinic_lat_lon:tuple = ("Latitude", "Longitude"),
+    #         population_lat_lon:tuple = ("lat", "lon")):
+    #     # To use sum of distance * estimated_str/ estimated_str? / sqrt of 0.5/
+    #     from scipy.spatial import KDTree
+
+    #     # Extract clinic coordinates
+    #     clinic_coords = clinics.loc[:,clinic_lat_lon].values
+
+    #     # Extract population coordinates (assuming population data is in latitude and longitude as well)
+    #     population_coords = population.loc[:,population_lat_lon]
+
+    #     # Create a KDTree for the population centers
+    #     population_tree = KDTree(population_coords)
+
+    #     # Find the nearest population center for each clinic
+    #     distances_to_population, _ = population_tree.query(clinic_coords)
+
+    #     # Calculate the average distance to the nearest population center
+    #     average_distance_to_population = np.mean(distances_to_population)
+
+    #     # Calculate the variance of distance to the nearest population center
+    #     variance_distance_to_population = np.var(distances_to_population)
+
+    #     # Return both values
+    #     return average_distance_to_population, variance_distance_to_population
+    
+    def ann(df:pd.DataFrame,
+            n_column:str,
+            a_column:str,
+            distance_column:str,
+            district_column:str = "district"):
+        from math import sqrt
+        from scipy.stats import norm
+        
+        n = df.loc[:,n_column].sum()
+        area = df.drop_duplicates(subset=district_column).loc[:,a_column].sum()
+
+        do = df.loc[:,distance_column].sum()/df.loc[:,n_column].sum()
+        de = 0.5/sqrt(n/area)
+
+        ann = do/de
+        se = 0.26136/((sqrt(n*n/area)))
+        z_score = (do-de)/se
+        
+        p_value = norm.sf(abs(z_score))
+
+        dict = {"ANN":ann,
+                "ann_z_score":z_score,
+                "p_value":p_value}
+
+        # Return the dictionary
+        return dict
+
 class map:
     # Options
     # Allowed values which do not require a Mapbox API token are 
@@ -86,6 +141,10 @@ class map:
         # To generate the number of GP in that area
         district_list = list(df.loc[:,"district"].unique())
         answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
+
+        # Calculate ann
+        ann_dict = gp.ann(df, n_column="estimated_str", a_column="area", distance_column="distance")
+        answer_dict.update(ann_dict)
 
         # Create descriptive_df
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
@@ -158,6 +217,12 @@ def overlay_analysis():
         gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len).reset_index()\
                      .rename(columns={"district":map._summary_column_name[0], "clinic_name":"Number of GP"})
         pivot_table = pivot_table.merge(gp_pt, how="left", on=map._summary_column_name[0])
+
+        # Calculate ann
+        ann_dict = gp.ann(population, n_column="estimated_str", a_column="area", distance_column="distance")
+        
+        for key,value in ann_dict.items():
+            pivot_table.loc[:,key] = value
         
         # To display the histogram?
         descriptive_df = map.descriptive_analysis(population, index_name="10 Districts", gp_df = gp_df, show_descriptive = False)

@@ -105,3 +105,32 @@ class gp:
 
         # Return the dataframe
         return df
+    
+    def ann(clinics:pd.DataFrame,
+            population:pd.DataFrame,
+            clinic_lat_lon:tuple = ("Latitude", "Longitude"),
+            population_lat_lon:tuple = ("lat", "lon")):
+        # To use sum of distance * estimated_str/ estimated_str? / sqrt of 0.5/
+        from scipy.spatial import KDTree
+        import numpy as np
+
+        # Extract clinic coordinates
+        clinic_coords = clinics.loc[:,clinic_lat_lon].values
+
+        # Extract population coordinates (assuming population data is in latitude and longitude as well)
+        population_coords = population.loc[:,population_lat_lon]
+
+        # Create a KDTree for the population centers
+        population_tree = KDTree(population_coords)
+
+        # Find the nearest population center for each clinic
+        distances_to_population, _ = population_tree.query(clinic_coords)
+
+        # Calculate the average distance to the nearest population center
+        average_distance_to_population = np.mean(distances_to_population)
+
+        # Calculate the variance of distance to the nearest population center
+        variance_distance_to_population = np.var(distances_to_population)
+
+        # Return both values
+        return average_distance_to_population, variance_distance_to_population
