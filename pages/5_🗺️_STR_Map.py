@@ -213,7 +213,7 @@ def str_map_analysis() -> None:
         if district_selection != []:
             population = population.filter(pl.col("district").is_in(district_selection))
             district_population = district_population.filter(pl.col("district").is_in(district_selection))
-            gp_df = gp_df
+            gp_df = gp_df.filter(pl.col("district").is_in(district_selection))
 
         # For density map radius
         radius = st.slider("Radius in Density Map", min_value=1, max_value=100, value=20)
@@ -282,8 +282,12 @@ def str_map_analysis() -> None:
                                      .select(pl.col("date").cast(pl.String), "district", "population").to_pandas()\
                          .pivot_table(index="district", columns="date", values="population", aggfunc=sum, margins=False)
         
+        # Pivot the gp_df
+        gp_df = gp_df.group_by("district").len("Number of GPs").to_pandas()
+
         # Merge the dataframe .drop(columns="All") if use margins --True
-        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")
+        merge_pt = temp_pt.merge(temp_df.reset_index(), how="outer", on="district")\
+                          .merge(gp_df, how="left", on="district")
         
         # To prevent error of percentage upon selection of district:
         temp_dict = {"2020-01-01":32447.1, 
