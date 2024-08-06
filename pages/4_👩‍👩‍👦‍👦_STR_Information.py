@@ -24,7 +24,7 @@ from function.descriptive import descriptive
 @st.cache_data
 def read_data():
     # Prepare the data first, if error will prevent the code from running
-    population = pl.read_parquet(os.path.join(os.path.dirname(os.getcwd()),file._file_spm_parquet))
+    population = pl.read_parquet("/Users/wh0102/Downloads/github/mph/geo_project/streamlit/data/spm_initial/spm_full.parquet")
     # parlimen_info = gpd.read_file(os.path.join(os.path.dirname(os.getcwd()),file._map_parlimen))
     district = gpd.read_file(os.path.join(os.path.dirname(os.getcwd()),file._map_district))
     parlimen = gpd.read_file(os.path.join(os.path.dirname(os.getcwd()),file._map_parlimen))

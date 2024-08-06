@@ -70,6 +70,7 @@ class map:
     
     def descriptive_analysis(df:pd.DataFrame,
                              index_name:str,
+                             gp_df:pd.DataFrame,
                              show_descriptive:bool = False) -> pd.DataFrame:
         # To put the summary of the df
         answer_dict = dict(zip(map._summary_column_name[1:-1],
@@ -81,6 +82,10 @@ class map:
         # Add shapiro to the dictionary
         answer_dict["Shapiro Stats"] = shapiro_value[0]
         answer_dict["Shapiro p value"] = shapiro_value[1]
+
+        # To generate the number of GP in that area
+        district_list = df.loc[:,"district"].unique()
+        answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
 
         # Create descriptive_df
         descriptive_df = pd.DataFrame(answer_dict, index=[index_name])\
@@ -97,7 +102,7 @@ class map:
         
         # Trial to display the dataframe based on show_descriptive
         if show_descriptive == True:
-            st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=False)
+            st.dataframe(descriptive_df.round(2), use_container_width=True, hide_index=True)
             # To put a divider
             st.divider()
 
