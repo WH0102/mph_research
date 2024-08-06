@@ -84,8 +84,8 @@ class map:
         answer_dict["Shapiro p value"] = shapiro_value[1]
 
         # To generate the number of GP in that area
-        district_list = list(df.loc[:,"district"].unique())
-        answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
+        # district_list = list(df.loc[:,"district"].unique())
+        # answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
         # gp_pt = gp_df.pivot_table(index="district", values="clinic_name", aggfunc=len)\
         #              .rename(columns={"clinic_name":"Number of GPs", "district":map._summary_column_name[0]})
 
