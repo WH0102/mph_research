@@ -84,7 +84,7 @@ class map:
         answer_dict["Shapiro p value"] = shapiro_value[1]
 
         # To generate the number of GP in that area
-        district_list = df.loc[:,"district"].unique()
+        district_list = list(df.loc[:,"district"].unique())
         answer_dict["Number of GP"] = len(gp_df.query(f"district.isin({district_list})"))
 
         # Create descriptive_df
