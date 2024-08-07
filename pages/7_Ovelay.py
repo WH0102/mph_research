@@ -131,9 +131,9 @@ def str_overlay_analysis() -> None:
         text = gp_df["clinic_name"],
         ))
 
-    gp_fig.add_trace(population_fig.data[0])
+    population_fig.add_trace(gp_fig.data[0])
 
-    gp_fig.update_layout(
+    population_fig.update_layout(
         mapbox = {
             'accesstoken': os.getenv("MAPBOX_TOKEN"),
             'style': mapbox_style, 'zoom': 5,
