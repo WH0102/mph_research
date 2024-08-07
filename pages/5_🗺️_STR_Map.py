@@ -237,7 +237,7 @@ def str_map_analysis() -> None:
 
     # To allow user to select which type of map to present
     map_selection = st.radio("Select Type of Map to display", 
-                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Scatter Buble Map", "Hexbin Map"],
+                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Hexbin Map", "Scatter Buble Map"],
                              horizontal=True)
 
     if map_selection == "Hexbin Map":
