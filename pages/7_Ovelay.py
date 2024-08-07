@@ -111,9 +111,9 @@ def str_overlay_analysis() -> None:
     gp_df = gp_df.to_pandas()
 
     population_fig = ff.create_hexbin_mapbox(
-        data_frame=population.select("X", "Y", "estimated_str").to_pandas(),
-        lat="Y", 
-        lon="X",
+        data_frame=population.select("lat", "lon", "estimated_str").to_pandas(),
+        lat="lat", 
+        lon="lon",
         agg_func=np.sum,
         color = "estimated_str",
         color_continuous_scale=color_continuous_scale,
