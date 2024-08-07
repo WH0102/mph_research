@@ -237,46 +237,10 @@ def str_map_analysis() -> None:
 
     # To allow user to select which type of map to present
     map_selection = st.radio("Select Type of Map to display", 
-                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Hexbin Map", "Scatter Buble Map"],
+                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Scatter Buble Map"],
                              horizontal=True)
 
-    if map_selection == "Hexbin Map":
-        import plotly.figure_factory as ff
-        import numpy as np
-        # Hexbin for population
-        population_fig = ff.create_hexbin_mapbox(
-            data_frame=population.select("X", "Y", "estimated_str").to_pandas(),
-            lat="Y", 
-            lon="X",
-            agg_func=np.sum,
-            color = "estimated_str",
-            color_continuous_scale=color_continuous_scale,
-            mapbox_style = mapbox_style,
-            nx_hexagon=nx_hexagon, 
-            opacity=opacity, 
-            min_count=1, 
-            show_original_data=False,
-        )
-        gp_df = gp_df.to_pandas()
-        gp_fig = go.Figure(go.Scattermapbox(below="''",
-            mode = "markers+text",
-            lon = gp_df["Longitude"], lat = gp_df["Latitude"],
-            marker = {'size':10, 'symbol': "marker"},
-            text = gp_df["clinic_name"],
-            ))
-
-        gp_fig.add_trace(population_fig.data[0])
-
-        gp_fig.update_layout(
-            mapbox = {
-                'accesstoken': os.getenv("MAPBOX_TOKEN"),
-                'style': mapbox_style, 'zoom': 5,
-                "center":{"lat": 4.389059008652357, "lon": 108.65244272591418}},
-            showlegend = False,)
-
-        st.plotly_chart(gp_fig, use_container_width=True)
-    
-    elif map_selection == "Density Map":
+    if map_selection == "Density Map":
         # Prepare the dataset
         temp_pt = population.select("X","Y", "estimated_str").to_pandas()
 
