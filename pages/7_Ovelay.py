@@ -53,7 +53,7 @@ class map:
     def read_data():
         gp_df = pl.read_parquet("./data/information/gp_list.parquet")
 
-        population = pl.read_parquet("./data/information/str_ascii_household_and_gp.parquet")\
+        population = pl.read_parquet("./data/information/ascii_household_and_gp.parquet")\
                         .filter(pl.col("code_state_district").is_in(map._district_code_list))
 
         return population, gp_df
