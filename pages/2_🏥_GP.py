@@ -15,26 +15,7 @@ _mapbox_style = [
     ]
 
 def read_google_sheet():
-    import gspread
-    import ast
-    from google.oauth2.service_account import Credentials
-    scopes = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
-
-    credentials = Credentials.from_service_account_info(
-        ast.literal_eval(os.getenv("GSPREAD")),
-        scopes=scopes
-    )
-
-    gc = gspread.authorize(credentials)
-
-    sh = gc.open_by_url("https://docs.google.com/spreadsheets/d/1qFEXMLsWHXQIvv3gUflwObSOZPqklw8TD_VXilI2ojo/edit")
-
-    worksheet = sh.get_worksheet(0)
-
-    return pd.DataFrame(worksheet.get_all_records())
+    return pd.read_excel("./data/information/gp_list.xlsx")
 
 def gp_analysis() -> None:
     # Prepare the data first, if error will prevent the code from running
