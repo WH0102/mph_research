@@ -124,16 +124,17 @@ def str_overlay_analysis() -> None:
         show_original_data=False,
     )
     
-    # gp_fig = go.Figure(go.Scattermapbox(
-    #     mode = "markers+text",
-    #     lon = gp_df["Longitude"], lat = gp_df["Latitude"],
-    #     marker = {'size':marker_size, 'symbol': "marker"},
-    #     text = gp_df["clinic_name"],
-    #     ))
+    gp_fig = go.Figure(go.Scattermapbox(
+        mode = "markers+text",
+        lon = gp_df["Longitude"], lat = gp_df["Latitude"],
+        marker = {'size':marker_size, 'symbol': "marker"},
+        text = gp_df["clinic_name"],
+        ))
 
-    gp_fig = px.scatter_mapbox(gp_df, lat="Latitude", lon="Longitude", 
-                          color="district", 
-                          text="clinic_name")
+    # Can't even notice the gp scatter plot
+    # gp_fig = px.scatter_mapbox(gp_df, lat="Latitude", lon="Longitude", 
+    #                       color="district", 
+    #                       text="clinic_name")
 
     population_fig.add_trace(gp_fig.data[0])
 
