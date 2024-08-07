@@ -124,7 +124,7 @@ def str_overlay_analysis() -> None:
         show_original_data=False,
     )
     
-    gp_fig = go.Figure(go.Scattermapbox(below="''",
+    gp_fig = go.Figure(go.Scattermapbox(
         mode = "markers+text",
         lon = gp_df["Longitude"], lat = gp_df["Latitude"],
         marker = {'size':marker_size, 'symbol': "marker"},
