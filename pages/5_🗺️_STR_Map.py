@@ -218,6 +218,9 @@ def str_map_analysis() -> None:
         # For density map radius
         radius = st.slider("Radius in Density Map", min_value=1, max_value=100, value=20)
 
+        # For Hexagon
+        nx_hexagon = st.slider("N Hexagon", min_value = 100, max_value=10000, value = 1500)
+
     with col2:
         mapbox_style = st.selectbox("Mapbox Style", options=map._mapbox_style)
 
@@ -227,14 +230,53 @@ def str_map_analysis() -> None:
             population = population.filter(pl.col("parlimen").is_in(parlimen))
 
         # To select opacity for density map
-        opacity = st.slider("Opacity for Density Map", min_value=0.1, max_value=1.0, value=0.5, step=0.05)
+        opacity = st.slider("Opacity for Density Map/ Hexbin Map", min_value=0.1, max_value=1.0, value=0.5, step=0.05)
+
+        # Marker size
+        marker_size = st.slider("Marker Size", min_value = 1, max_value = 50, value = 20)
 
     # To allow user to select which type of map to present
     map_selection = st.radio("Select Type of Map to display", 
-                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Scatter Buble Map"],
+                             options=["District Chorepleth", "Parlimen Chorepleth", "Density Map", "Scatter Buble Map", "Hexbin Map"],
                              horizontal=True)
 
-    if map_selection == "Density Map":
+    if map_selection == "Hexbin Map":
+        import plotly.figure_factory as ff
+        import numpy as np
+        # Hexbin for population
+        population_fig = ff.create_hexbin_mapbox(
+            data_frame=population.select("X", "Y", "estimated_str").to_pandas(),
+            lat="Y", 
+            lon="X",
+            agg_func=np.sum,
+            color = "estimated_str",
+            color_continuous_scale=color_continuous_scale,
+            mapbox_style = mapbox_style,
+            nx_hexagon=nx_hexagon, 
+            opacity=opacity, 
+            min_count=1, 
+            show_original_data=False,
+        )
+        gp_df = gp_df.to_pandas()
+        gp_fig = go.Figure(go.Scattermapbox(below="''",
+            mode = "markers+text",
+            lon = gp_df["Longitude"], lat = gp_df["Latitude"],
+            marker = {'size':10, 'symbol': "marker"},
+            text = gp_df["clinic_name"],
+            ))
+
+        gp_fig.add_trace(population_fig.data[0])
+
+        gp_fig.update_layout(
+            mapbox = {
+                'accesstoken': os.getenv("MAPBOX_TOKEN"),
+                'style': mapbox_style, 'zoom': 5,
+                "center":{"lat": 4.389059008652357, "lon": 108.65244272591418}},
+            showlegend = False,)
+
+        st.plotly_chart(gp_fig, use_container_width=True)
+    
+    elif map_selection == "Density Map":
         # Prepare the dataset
         temp_pt = population.select("X","Y", "estimated_str").to_pandas()
 

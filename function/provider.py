@@ -106,31 +106,29 @@ class gp:
         # Return the dataframe
         return df
     
-    def ann(clinics:pd.DataFrame,
-            population:pd.DataFrame,
-            clinic_lat_lon:tuple = ("Latitude", "Longitude"),
-            population_lat_lon:tuple = ("lat", "lon")):
-        # To use sum of distance * estimated_str/ estimated_str? / sqrt of 0.5/
-        from scipy.spatial import KDTree
-        import numpy as np
+    def ann(df:pd.DataFrame,
+            n_column:str,
+            a_column:str,
+            distance_column:str,
+            district_column:str = "district"):
+        from math import sqrt
+        from scipy.stats import norm
+        
+        n = df.loc[:,n_column].sum()
+        area = df.drop_duplicates(subset=district_column).loc[:,a_column].sum()
 
-        # Extract clinic coordinates
-        clinic_coords = clinics.loc[:,clinic_lat_lon].values
+        do = df.loc[:,distance_column].sum()/df.loc[:,n_column].sum()
+        de = 0.5/sqrt(n/area)
 
-        # Extract population coordinates (assuming population data is in latitude and longitude as well)
-        population_coords = population.loc[:,population_lat_lon]
+        ann = do/de
+        se = 0.26136/((sqrt(n*n/area)))
+        z_score = (do-de)/se
+        
+        p_value = norm.sf(abs(z_score))
 
-        # Create a KDTree for the population centers
-        population_tree = KDTree(population_coords)
+        dict = {"ANN":ann,
+                "ann_z_score":z_score,
+                "p_value":p_value}
 
-        # Find the nearest population center for each clinic
-        distances_to_population, _ = population_tree.query(clinic_coords)
-
-        # Calculate the average distance to the nearest population center
-        average_distance_to_population = np.mean(distances_to_population)
-
-        # Calculate the variance of distance to the nearest population center
-        variance_distance_to_population = np.var(distances_to_population)
-
-        # Return both values
-        return average_distance_to_population, variance_distance_to_population
+        # Return the dictionary
+        return dict
