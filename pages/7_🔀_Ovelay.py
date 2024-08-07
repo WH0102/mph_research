@@ -133,7 +133,7 @@ def str_overlay_analysis() -> None:
 
     gp_fig = px.scatter_mapbox(gp_df, lat="Latitude", lon="Longitude", 
                           color="district", 
-                          text="clinic_name"s)
+                          text="clinic_name")
 
     population_fig.add_trace(gp_fig.data[0])
 
