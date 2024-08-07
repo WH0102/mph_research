@@ -140,7 +140,7 @@ def str_overlay_analysis() -> None:
             "center":{"lat": 4.389059008652357, "lon": 108.65244272591418}},
         showlegend = False,)
 
-    st.plotly_chart(gp_fig, use_container_width=True)
+    st.plotly_chart(population_fig, use_container_width=True)
     
 
 if __name__ == "__main__":
