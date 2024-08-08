@@ -53,8 +53,8 @@ class map:
     def read_data():
         gp_df = pd.read_parquet("./data/information/gp_list.parquet")
 
-        population = pl.read_parquet("./data/information/ascii_household_and_gp.parquet")\
-                        .filter(pl.col("code_state_district").is_in(map._district_code_list))
+        population = pd.read_parquet("./data/information/ascii_household_and_gp.parquet")\
+                       .query(f"code_state_district.isin({map._district_code_list})")
 
         return population, gp_df
 
@@ -86,10 +86,10 @@ def str_overlay_analysis() -> None:
 
         # To select district
         district_selection = st.multiselect("Districts", 
-                                            options=population.sort("district").select("district").to_pandas()["district"].unique(),
+                                            options=population.loc[:,"district"].unique(),
                                             key="district_selection")
         if district_selection != []:
-            population = population.filter(pl.col("district").is_in(district_selection))
+            population = population.query(f"district.isin({district_selection})")
             gp_df = gp_df.query(f"district.isin({district_selection})")
 
         # For filtration of distance
@@ -99,7 +99,7 @@ def str_overlay_analysis() -> None:
                              value = (population.loc[:,"distance"].min(), population.loc[:,"distance"].max()),
                              step = 0.1,
                              key="distance")
-        population = population.filter(pl.col("distance").is_between(*distance))
+        population = population.loc[population.loc[:,"distance"].between(*distance)]
 
         # For Hexagon
         nx_hexagon = st.slider("N Hexagon", 
@@ -137,7 +137,7 @@ def str_overlay_analysis() -> None:
 
 
     population_fig = ff.create_hexbin_mapbox(
-        data_frame=population.select("lat", "lon", "estimated_str").to_pandas(),
+        data_frame=population.loc[:,("lat", "lon", "estimated_str")],
         lat="lat", 
         lon="lon",
         agg_func=np.sum,
