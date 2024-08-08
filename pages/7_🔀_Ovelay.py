@@ -106,6 +106,7 @@ def str_overlay_analysis() -> None:
                                min_value = 100, 
                                max_value=10000, 
                                value = 1500,
+                               step=1,
                                key="nx_hexagon")
 
     with col2:
