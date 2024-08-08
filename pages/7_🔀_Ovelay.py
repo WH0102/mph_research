@@ -115,10 +115,10 @@ def str_overlay_analysis() -> None:
 
         # To select parlimen
         parlimen = st.multiselect("Filter Parlimen", 
-                                  options=population.sort("parlimen").select("parlimen").to_pandas()["parlimen"].unique(),
+                                  options=population.loc[:,"parlimen"].unique(),
                                   key="parlimen")
         if parlimen != []:
-            population = population.filter(pl.col("parlimen").is_in(parlimen))
+            population = population.query(f"parlimen.isin({parlimen})")
 
         # To select opacity for density map
         opacity = st.slider("Opacity for Hexbin Map", 
