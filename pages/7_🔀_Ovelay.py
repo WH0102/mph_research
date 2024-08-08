@@ -104,9 +104,9 @@ def str_overlay_analysis() -> None:
         # For Hexagon
         nx_hexagon = st.slider("N Hexagon", 
                                min_value = 100, 
-                               max_value=10000, 
-                               value = 1500,
-                               step=1,
+                               max_value= 2000, 
+                               value = 1000,
+                               step=10,
                                key="nx_hexagon")
 
     with col2:
