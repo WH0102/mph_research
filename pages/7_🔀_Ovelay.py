@@ -51,7 +51,7 @@ class map:
     ]
 
     def read_data():
-        gp_df = pl.read_parquet("./data/information/gp_list.parquet")
+        gp_df = pd.read_parquet("./data/information/gp_list.parquet")
 
         population = pl.read_parquet("./data/information/ascii_household_and_gp.parquet")\
                         .filter(pl.col("code_state_district").is_in(map._district_code_list))
@@ -80,35 +80,61 @@ def str_overlay_analysis() -> None:
     # To put option for choropleth plot
     col1, col2 = st.columns(2)
     with col1:
-        color_continuous_scale = st.selectbox("color_continuous_scale", options=map._color_scheme)
+        color_continuous_scale = st.selectbox("Select Color Continous Scale Option", 
+                                              options=map._color_scheme,
+                                              key="color_continuous_scale")
 
         # To select district
-        district_selection = st.multiselect("Districts", options=population.sort("district").select("district").to_pandas()["district"].unique())
+        district_selection = st.multiselect("Districts", 
+                                            options=population.sort("district").select("district").to_pandas()["district"].unique(),
+                                            key="district_selection")
         if district_selection != []:
             population = population.filter(pl.col("district").is_in(district_selection))
-            gp_df = gp_df.filter(pl.col("district").is_in(district_selection))
+            gp_df = gp_df.query(f"district.isin({district_selection})")
 
-        # For density map radius
-        marker = st.slider("To change to Marker", min_value=1, max_value=100, value=20)
+        # For filtration of distance
+        distance = st.slider("Filter Distance Between", 
+                             min_value=population.loc[:,"distance"].min(),
+                             max_value=population.loc[:,"distance"].max(),
+                             value = (population.loc[:,"distance"].min(), population.loc[:,"distance"].max()),
+                             step = 0.1,
+                             key="distance")
+        population = population.filter(pl.col("distance").is_between(*distance))
 
         # For Hexagon
-        nx_hexagon = st.slider("N Hexagon", min_value = 100, max_value=10000, value = 1500)
+        nx_hexagon = st.slider("N Hexagon", 
+                               min_value = 100, 
+                               max_value=10000, 
+                               value = 1500,
+                               key="nx_hexagon")
 
     with col2:
-        mapbox_style = st.selectbox("Mapbox Style", options=map._mapbox_style)
+        mapbox_style = st.selectbox("Mapbox Style", 
+                                    options=map._mapbox_style,
+                                    key="mapbox_styles")
 
         # To select parlimen
-        parlimen = st.multiselect("Parlimen", options=population.sort("parlimen").select("parlimen").to_pandas()["parlimen"].unique())
+        parlimen = st.multiselect("Filter Parlimen", 
+                                  options=population.sort("parlimen").select("parlimen").to_pandas()["parlimen"].unique(),
+                                  key="parlimen")
         if parlimen != []:
             population = population.filter(pl.col("parlimen").is_in(parlimen))
 
         # To select opacity for density map
-        opacity = st.slider("Opacity for Density Map/ Hexbin Map", min_value=0.1, max_value=1.0, value=0.5, step=0.05)
+        opacity = st.slider("Opacity for Hexbin Map", 
+                            min_value=0.1, 
+                            max_value=1.0, 
+                            value=0.5, 
+                            step=0.05,
+                            key="opacity")
 
         # Marker size
-        marker_size = st.slider("Marker Size", min_value = 1, max_value = 50, value = 20)
+        marker_size = st.slider("Marker Size", 
+                                min_value = 1, 
+                                max_value = 50, 
+                                value = 20,
+                                key = "marker_size")
 
-    gp_df = gp_df.to_pandas()
 
     population_fig = ff.create_hexbin_mapbox(
         data_frame=population.select("lat", "lon", "estimated_str").to_pandas(),

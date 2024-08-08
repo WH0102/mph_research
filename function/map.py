@@ -144,3 +144,39 @@ class map:
         
         # Return fig
         return fig
+    
+    def grid_data(df, cell_size):
+        import numpy as np
+        from shapely.geometry import Polygon
+        """
+        Grids population data into a GeoDataFrame.
+
+        Args:
+            df: Pandas DataFrame with columns 'x', 'y', and 'z'.
+            cell_size: Size of grid cells in decimal degrees.
+
+        Returns:
+            GeoDataFrame with grid cells and population density.
+        """
+
+        # Calculate grid boundaries
+        min_x, max_x = df['X'].min(), df['X'].max()
+        min_y, max_y = df['Y'].min(), df['Y'].max()
+
+        # Create grid points
+        x_range = np.arange(min_x, max_x + cell_size, cell_size)
+        y_range = np.arange(min_y, max_y + cell_size, cell_size)
+        grid_points = [(x, y) for x in x_range for y in y_range]
+
+        # Create grid polygons
+        grid_polygons = []
+        for i in range(len(x_range) - 1):
+            for j in range(len(y_range) - 1):
+                x1, y1 = grid_points[i * len(y_range) + j]
+                x2, y2 = grid_points[(i + 1) * len(y_range) + j + 1]
+                grid_polygons.append(Polygon([(x1, y1), (x2, y1), (x2, y2), (x1, y2)]))
+
+        # Create GeoDataFrame
+        gdf = gpd.GeoDataFrame(geometry=grid_polygons)
+
+        return gdf
