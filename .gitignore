@@ -164,3 +164,5 @@ cython_debug/
 # Special Files
 *.DS_Store
 *.zip
+*.pdf 
+*.docx

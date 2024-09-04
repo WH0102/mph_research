@@ -1,11 +1,20 @@
 import streamlit as st
 from datetime import date
+import geopandas as gpd
+import pandas as pd
+import polars as pl
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
 import os
 import sys
 
 # To ensure the function can be import
 if os.path.dirname(os.getcwd()) not in sys.path:
     sys.path.append(os.path.dirname(os.getcwd()))
+
+import spm
 
 # Set streamlit page configuration
 st.set_page_config(page_title = "Wei Hong's MPH Research Project", page_icon = "random", layout = "wide")
@@ -24,7 +33,10 @@ def home_page() -> None:
     st.divider()
     st.markdown("""<p class="header">Wei Hong's MPH Research Project's Result</p>""", unsafe_allow_html=True)
     st.markdown(f'<p class="subheader">Date = {date.today()}</p>', unsafe_allow_html=True)
-    st.divider()   
+    st.divider()
+
+
+
     
 if __name__ == "__main__":
     home_page()
