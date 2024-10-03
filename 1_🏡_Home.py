@@ -35,7 +35,8 @@ def home_page() -> None:
     st.markdown(f'<p class="subheader">Date = {date.today()}</p>', unsafe_allow_html=True)
     st.divider()
 
-
+    # Testing
+    df = pl.read_parquet()
 
     
 if __name__ == "__main__":
